@@ -426,6 +426,27 @@ function renderStats(){const L=items||[];$("#stR").textContent=L.filter(i=>i.tip
 const BASE=`Você é roteirista e estrategista de conteúdo do time de marketing do H2 Club, clube de poker no Brasil que oferece torneios, mesas de cash game, home games e uma área de A&B (alimentos e bebidas) com cardápio próprio.
 Escreva em português do Brasil, com linguagem natural de redes sociais.
 Regras: nunca prometa ganhos nem trate o poker como fonte de renda; o público é +18; quando fizer sentido, reforce jogo responsável; não invente datas, valores, prêmios, pratos ou preços que não foram informados: use marcadores entre colchetes, como [data] ou [valor do buy-in], para o time preencher.`;
+/* Padrão de roteiro da H2 (base: tarefa "Mkt Live SP | ADS | Roteiros | Home Game | 2026 | 01" do ClickUp) */
+const PADRAO_AREAS=["Torneio","Cash Game","Home Game","A&B"];
+const ASSINATURAS={"Home Game":"A nossa Home, o seu Game!"};
+const PADRAO=`PADRÃO DE ROTEIRO DA H2 (é o modelo que o time usa; siga à risca):
+- Cabeçalho: "[CATEGORIA EM CAIXA ALTA] H2 — [assinatura]". A assinatura é um trocadilho curto que se repete no lettering final.
+- Narrativa em três atos com nomes que descrevem a virada do vídeo (ex.: preparação → revelação → experiência). Cada linha da tabela pertence a um ato.
+- Tabela com três colunas: Tempo | Cena | Fala / Som.
+- Tempo: faixas contínuas, sem buracos, escritas como "0 a 1s", "1 a 2s", "10 a 12s", do zero até a duração total. Em vídeos de até 60s cada linha dura de 1 a 3 segundos (montagens rápidas podem ter um corte a cada 0,5s dentro da linha). Em vídeos mais longos, até 6 segundos por linha.
+- Cena: descrição cinematográfica e filmável. Identifique as pessoas por letras (pessoa A, pessoa B…), além de dealer, funcionário ou garçom. Diga o enquadramento (close, macro, plano aberto, vista de cima, POV do espectador), o movimento de câmera (gira, desce, recua, desliza, acompanha), foco e desfoque, câmera lenta e transições (transição desfocada, match cut, cortes rápidos de reação, montagem rápida).
+- Fala / Som: falas entre aspas, narração, efeitos sonoros (riffle das cartas, ficha batendo no feltro, copos brindando), música (quando entra, cresce, bate no corte). Use "—" quando não houver nada.
+- Ambiente H2 que aparece nos roteiros de referência (use quando fizer sentido): fichas H2 empilhadas, logo H2 no feltro, dealer, luz quente só sobre o feltro, fundo roxo escuro, teto de luzes em grade roxa, cadeiras de couro.
+- Ritmo: gancho visual forte já no primeiro segundo, tensão que cresce, reação e emoção das pessoas, convite ao espectador (ex.: POV com o dealer deslizando cartas para a câmera e a mesa olhando para a lente).
+- Final (packshot, últimos 2 a 3 segundos): ficha H2 em primeiro plano, girando ou deslizando, integrada ao lettering; logo H2 grande sobre a cena; lettering em caixa alta com a categoria e a assinatura. A cena continua viva ao fundo, ninguém congela para o packshot.
+
+TRECHO DE UM ROTEIRO DE REFERÊNCIA (Home Game, 30s, "A nossa home. O seu game."; só as colunas Tempo e Cena):
+0 a 1s | Pessoa A de costas, numa cadeira de couro, debruçada e concentrada na mesa. A câmera gira ao lado dela: A fica desfocada e o foco vai para o fundo roxo escuro, onde aparece a silhueta de um dealer distribuindo as cartas, projetada como sombra.
+2 a 3s | Quem passou era a pessoa B, que se senta ao lado de A. As duas trocam um olhar de provocação. A câmera desce para a mão de B e dá close no full house que ela esconde.
+6 a 7s | Pessoa E encara a mesa e empurra todas as fichas: all-in. Close na ficha de all-in jogada para cima pelo dealer, em câmera lenta.
+14 a 16s | POV do espectador: o dealer desliza duas cartas em direção à câmera. Os amigos olham direto para a lente, com cara de "e aí, você entra?".
+27 a 30s | Logo da H2 grande sobre a cena, com a chamada "HOME GAME — NOSSA HOME É SEU GAME" e a ficha H2 integrada ao lettering.
+Outro roteiro da mesma série começa com funcionários preparando a mesa vazia em checklist falado ("Baralho?", "Fichas?", "Mesa?"), com som da ficha no feltro, até a porta abrir, a música crescer e match cuts levarem da cadeira vazia para a pessoa sentando.`;
 function ctxBlock(area){let s="";if(clube.sobre.trim())s+="\n\nInformações do clube (use como referência de fatos e tom de voz):\n"+clube.sobre.trim().slice(0,6000);if(area==="A&B"){s+=clube.cardapio.trim()?"\n\nCardápio de A&B do clube (use só itens desta lista):\n"+clube.cardapio.trim().slice(0,6000):"\n\nO cardápio não foi informado: use marcadores como [nome do prato] e [nome do drink].";}return s;}
 
 /* ---------- tabs & nav ---------- */
@@ -435,7 +456,7 @@ document.querySelectorAll("[data-go]").forEach(a=>a.addEventListener("click",()=
 
 /* ---------- wizard ---------- */
 const STEPS=[
- {id:"area",q:"Qual a categoria do vídeo?",hint:"Define o assunto e, em A&B, puxa o cardápio do clube.",opts:AREAS},
+ {id:"area",q:"Qual a categoria do vídeo?",hint:"Em Torneio, Cash Game, Home Game e A&B o roteiro sai no padrão da H2: três atos e tabela Tempo | Cena | Fala / Som. Em A&B, também puxa o cardápio do clube.",opts:AREAS},
  {id:"video",q:"Tem uma propaganda de inspiração?",hint:"Opcional. Anexe o vídeo e a IA monta o roteiro da H2 seguindo a estrutura, o ritmo e o estilo dele.",video:true,optional:true},
  {id:"duracao",q:"Tempo de duração do vídeo",opts:["15 segundos","30 segundos","45 segundos","60 segundos","90 segundos","3 minutos"]},
  {id:"assunto",q:"Sobre o que o vídeo aborda?",hint:"Quanto mais específico, melhor o roteiro.",text:true,ph:"Ex.: Divulgação do Main Event de outubro, com garantido de [valor] e satélites durante a semana."},
@@ -479,6 +500,7 @@ async function genRoteiro(){
   const status=el("span",null,"Pensando no roteiro…");
   out.replaceChildren(el("div",{class:"out-card"},el("div",{class:"thinking"},el("span",{class:"dots"},el("i"),el("i"),el("i")),status,stop)));
   out.scrollIntoView({behavior:"smooth",block:"start"});
+  const padrao=PADRAO_AREAS.includes(a.area);
   const prompt=`${BASE}${ctxBlock(a.area)}
 
 Crie um roteiro de vídeo com estes dados:
@@ -491,14 +513,18 @@ Crie um roteiro de vídeo com estes dados:
 - Formato de gravação: ${a.formato}
 - Informações obrigatórias e CTA: ${(a.detalhes||"").trim()||"não informado"}${videoPrompt()}
 
-Divida em cenas com marcação de tempo que somem a duração pedida (a primeira cena é um gancho de até 3 segundos). Adapte a linguagem à plataforma.
+${padrao?`${PADRAO}
+
+Monte o roteiro seguindo esse padrão, cobrindo exatamente a duração pedida.${ASSINATURAS[a.area]?` Use a assinatura "${ASSINATURAS[a.area]}".`:" Crie uma assinatura curta para a categoria, no mesmo espírito (trocadilho com o nome da categoria ou do clube)."}${a.area==="A&B"?" Em A&B, a comida e a bebida são as protagonistas: closes de preparo, textura e brinde, com a mesa de poker como cenário.":""} Adapte a linguagem à plataforma.
 Responda só com JSON neste formato:
-{"titulo":"título curto do vídeo","mensagem":"a mensagem principal do vídeo em uma frase","cenas":[{"tempo":"0-3s","nome":"Gancho","visual":"o que aparece","fala":"o que é falado ou narrado","texto_tela":"texto na tela"}],"cta":"chamada final","legenda":"legenda do post","hashtags":["tag"],"dicas":["dica de gravação"]${vid.frames.length?',"referencia":"em 2 ou 3 frases, o que foi aproveitado da propaganda de inspiração (estrutura, ritmo, recursos)"':""}}`;
+{"titulo":"título curto do vídeo","assinatura":"trocadilho da categoria","atos":["Preparação","Revelação","Experiência"],"mensagem":"a mensagem principal do vídeo em uma frase","cenas":[{"tempo":"0 a 1s","ato":"Preparação","cena":"descrição cinematográfica da cena","som":"fala entre aspas, som ou música, ou —"}],"lettering":"texto final em caixa alta","cta":"chamada final","legenda":"legenda do post","hashtags":["tag"],"dicas":["dica de gravação"]${vid.frames.length?',"referencia":"em 2 ou 3 frases, o que foi aproveitado da propaganda de inspiração (estrutura, ritmo, recursos)"':""}}`:`Divida em cenas com marcação de tempo que somem a duração pedida (a primeira cena é um gancho de até 3 segundos). Adapte a linguagem à plataforma.
+Responda só com JSON neste formato:
+{"titulo":"título curto do vídeo","mensagem":"a mensagem principal do vídeo em uma frase","cenas":[{"tempo":"0-3s","nome":"Gancho","visual":"o que aparece","fala":"o que é falado ou narrado","texto_tela":"texto na tela"}],"cta":"chamada final","legenda":"legenda do post","hashtags":["tag"],"dicas":["dica de gravação"]${vid.frames.length?',"referencia":"em 2 ou 3 frases, o que foi aproveitado da propaganda de inspiração (estrutura, ritmo, recursos)"':""}}`}`;
   try{
     const opts={signal:rCtl.signal,cache:false};if(vid.frames.length)opts.images=vid.frames.map(f=>f.blob);
     status.textContent=vid.frames.length?"Assistindo aos quadros da propaganda…":"Pensando no roteiro…";
     const j=await sample.json(prompt,{...opts,onText:({text})=>{status.textContent=`Escrevendo o roteiro… ${text.length} caracteres`;}});
-    rDraft={tipo:"roteiro",area:a.area,titulo:String(j.titulo||"Roteiro sem título"),mensagem:String(j.mensagem||""),conteudo:fmtRoteiro(j,a),meta:[a.duracao,a.plataforma,a.tom].filter(Boolean).join(" · "),inspiracao:vid.frames.length?vid.name:"",thumb:vid.thumb||""};
+    rDraft={tipo:"roteiro",area:a.area,titulo:String(j.titulo||"Roteiro sem título"),mensagem:String(j.mensagem||""),conteudo:padrao?fmtRoteiroH2(j,a):fmtRoteiro(j,a),meta:[a.duracao,a.plataforma,a.tom].filter(Boolean).join(" · "),inspiracao:vid.frames.length?vid.name:"",thumb:vid.thumb||""};
     showDraft();
   }catch(e){
     if(e&&e.code==="cancelled"){out.replaceChildren(el("div",{class:"out-card"},el("span",{class:"note"},"Geração interrompida."),el("div",{class:"row"},el("button",{class:"btn btn-violet btn-sm",onclick:genRoteiro},"Gerar de novo"))));return;}
@@ -517,6 +543,64 @@ function fmtRoteiro(j,a){
   if(Array.isArray(j.dicas)&&j.dicas.length)L.push("","DICAS DE GRAVAÇÃO",...j.dicas.map(d=>"• "+d));
   return L.join("\n").trim();
 }
+function fmtRoteiroH2(j,a){
+  const L=[],area=String(a.area||"").toUpperCase(),ass=String(j.assinatura||ASSINATURAS[a.area]||"").trim();
+  L.push(`${area} H2${ass?` — "${ass}"`:""}`);
+  if(Array.isArray(j.atos)&&j.atos.length)L.push("Narrativa em três atos: "+j.atos.map(x=>String(x).toLowerCase()).join(" → ")+".");
+  L.push("");
+  if(j.mensagem)L.push("MENSAGEM PRINCIPAL\n"+j.mensagem,"");
+  if(j.referencia)L.push("INSPIRAÇÃO"+(vid.name?" ("+vid.name+")":"")+"\n"+j.referencia,"");
+  L.push([a.duracao,a.plataforma,"Tom "+String(a.tom||"").toLowerCase(),a.formato].filter(Boolean).join(" · "),"");
+  L.push("TEMPO | CENA | FALA / SOM","");
+  let ato="";
+  (Array.isArray(j.cenas)?j.cenas:[]).forEach(c=>{
+    const at=String(c.ato||"").trim();
+    if(at&&at!==ato){ato=at;L.push("ATO · "+at.toUpperCase(),"");}
+    L.push(String(c.tempo||"").trim(),"Cena: "+String(c.cena||c.visual||"").trim(),"Fala / Som: "+(String(c.som||c.fala||"").trim()||"—"),"");
+  });
+  if(j.lettering)L.push("LETTERING FINAL\n"+j.lettering,"");
+  if(j.cta)L.push("CTA\n"+j.cta,"");
+  if(j.legenda)L.push("LEGENDA\n"+j.legenda);
+  if(Array.isArray(j.hashtags)&&j.hashtags.length)L.push(j.hashtags.map(h=>"#"+String(h).replace(/^#/,"").replace(/\s+/g,"")).join(" "));
+  if(Array.isArray(j.dicas)&&j.dicas.length)L.push("","DICAS DE GRAVAÇÃO",...j.dicas.map(d=>"• "+d));
+  return L.join("\n").trim();
+}
+/* Lê de volta a tabela Tempo | Cena | Fala / Som do texto (também depois de editado) */
+const TEMPO_RE=/^\d+(?:[.,]\d+)?\s*(?:s|seg)?\s*(?:a|–|-|até)\s*\d+(?:[.,]\d+)?\s*s$/i;
+function parseTabela(txt){
+  const ls=String(txt||"").split("\n").map(x=>x.trim()),rows=[];let ato="";
+  for(let k=0;k<ls.length;k++){
+    const l=ls[k];
+    if(/^ATO · /.test(l)){ato=l.slice(6);continue;}
+    if(TEMPO_RE.test(l)&&/^Cena:/i.test(ls[k+1]||"")){
+      const r={ato,tempo:l,cena:ls[k+1].replace(/^Cena:\s*/i,""),som:""};
+      if(/^Fala \/ Som:/i.test(ls[k+2]||"")){r.som=ls[k+2].replace(/^Fala \/ Som:\s*/i,"");k++;}
+      k++;rows.push(r);
+    }
+  }
+  return rows;
+}
+const escH=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+async function copyTabela(titulo,txt){
+  const rows=parseTabela(txt);if(!rows.length){toast("Não encontrei a tabela neste roteiro.");return;}
+  const head=String(txt).split("\n")[0];
+  const cell="border:1px solid #bbb;padding:6px 8px;vertical-align:top;text-align:left";
+  let html=`<p><b>${escH(titulo)}</b><br>${escH(head)}</p><table style="border-collapse:collapse"><thead><tr><th style="${cell}">Tempo</th><th style="${cell}">Cena</th><th style="${cell}">Fala / Som</th></tr></thead><tbody>`;
+  let ato="";
+  rows.forEach(r=>{if(r.ato&&r.ato!==ato){ato=r.ato;html+=`<tr><td colspan="3" style="${cell}"><b>${escH(ato)}</b></td></tr>`;}html+=`<tr><td style="${cell};white-space:nowrap">${escH(r.tempo)}</td><td style="${cell}">${escH(r.cena)}</td><td style="${cell}">${escH(r.som)}</td></tr>`;});
+  html+="</tbody></table>";
+  const plain=["Tempo\tCena\tFala / Som",...rows.map(r=>[r.tempo,r.cena,r.som].join("\t"))].join("\n");
+  try{
+    if(!window.ClipboardItem||!navigator.clipboard||!navigator.clipboard.write)throw 0;
+    await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([html],{type:"text/html"}),"text/plain":new Blob([plain],{type:"text/plain"})})]);
+    toast("Tabela copiada. Cole no ClickUp, Docs ou Word.");
+  }catch(e){
+    const box=el("div",{contenteditable:"true",style:"position:fixed;left:-9999px;top:0",html});document.body.append(box);
+    const r=document.createRange();r.selectNodeContents(box);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
+    let ok=false;try{ok=document.execCommand("copy");}catch(_){}sel.removeAllRanges();box.remove();
+    if(ok)toast("Tabela copiada. Cole no ClickUp, Docs ou Word.");else copyText(plain);
+  }
+}
 function showDraft(){
   const d=rDraft,out=$("#rOut");
   const ti=el("input",{class:"field",id:"dTitle","aria-label":"Título"});ti.value=d.titulo;
@@ -526,7 +610,7 @@ function showDraft(){
     el("div",{class:"item-top"},el("span",{class:"pill p-roteiro"},"Roteiro"),el("span",{class:"pill "+(d.area==="A&B"?"p-ab":"p-area")},d.area),d.inspiracao?el("span",{class:"pill p-vid"},"Com inspiração"):null,el("span",{class:"note"},d.meta)),
     ti,d.mensagem?el("div",{class:"tcard"},el("p",{class:"quote",style:"margin:0"},el("small",null,"O que esse vídeo quer dizer"),d.mensagem)):null,
     el("p",{class:"note",style:"margin:0"},"Você pode editar o texto antes de salvar."),ta,
-    el("div",{class:"row end"},el("button",{class:"btn btn-ghost",onclick:()=>{wiz.i=0;wiz.a={};clearVideo();$("#rOut").hidden=true;renderWizard();$("#estudio").scrollIntoView({behavior:"smooth"});}},"Recomeçar"),el("button",{class:"btn btn-ghost",onclick:()=>copyText(ti.value+"\n\n"+ta.value)},"Copiar"),el("button",{class:"btn btn-dark",onclick:genRoteiro},"Gerar outra versão"),save)
+    el("div",{class:"row end"},el("button",{class:"btn btn-ghost",onclick:()=>{wiz.i=0;wiz.a={};clearVideo();$("#rOut").hidden=true;renderWizard();$("#estudio").scrollIntoView({behavior:"smooth"});}},"Recomeçar"),el("button",{class:"btn btn-ghost",onclick:()=>copyText(ti.value+"\n\n"+ta.value)},"Copiar"),PADRAO_AREAS.includes(d.area)?el("button",{class:"btn btn-ghost",onclick:()=>copyTabela(ti.value,ta.value)},"Copiar tabela"):null,el("button",{class:"btn btn-dark",onclick:genRoteiro},"Gerar outra versão"),save)
   ));
 }
 
@@ -658,6 +742,7 @@ function openItem(id,mode){
   const foot=el("div",{class:"mfoot"});
   const leftActs=el("div",{class:"row"},
     el("button",{class:"btn btn-dark btn-sm",onclick:()=>copyText(fullText(i))},"Copiar"),
+    i.tipo==="roteiro"&&parseTabela(i.conteudo).length?el("button",{class:"btn btn-ghost btn-sm",onclick:()=>copyTabela(i.titulo||"",i.conteudo)},"Copiar tabela"):null,
     el("button",{class:"btn btn-ghost btn-sm",onclick:()=>openItem(id,"edit")},"Editar"),
     i.tipo==="tema"?el("button",{class:"btn btn-ghost btn-sm",onclick:()=>{closeModal();temaToRoteiro(i);}},"Virar roteiro"):null,
     el("button",{class:"btn btn-ghost btn-sm",style:"color:var(--red)",onclick:()=>openItem(id,"confirm")},"Apagar"));
