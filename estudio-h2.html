@@ -172,6 +172,8 @@ textarea.field{min-height:110px;line-height:1.5}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .row.end{justify-content:flex-end}
 .note{font-size:13px;color:var(--ink-3)}
+.info{padding:12px 14px;border-radius:14px;background:var(--card-2);color:var(--ink-2);font-size:14px;line-height:1.5}
+.info b{color:var(--ink)}
 .err{padding:12px 14px;border-radius:14px;background:var(--red-bg);color:var(--red);font-weight:600;font-size:14px}
 
 /* TEMAS */
@@ -489,7 +491,7 @@ function renderWizard(){
 function syncNext(){const s=STEPS[wiz.i],b=$("#wizNext");if(!b)return;const ok=s.optional||String(wiz.a[s.id]||"").trim();const last=wiz.i===STEPS.length-1;b.disabled=!ok||(last&&(!sample||!allAnswered()));}
 function allAnswered(){return STEPS.every(s=>s.optional||String(wiz.a[s.id]||"").trim());}
 function renderAnswers(){
-  $("#wizA").replaceChildren(el("h4",null,"Suas respostas"),...STEPS.map((s,k)=>{const v=String(wiz.a[s.id]||"").trim();return el("button",{class:"ans"+(v?" done":"")+(k===wiz.i?" cur":""),onclick:()=>{wiz.i=k;renderWizard();}},el("span",{class:"n"},k+1),el("span",null,el("b",null,s.q),el("span",{class:"v"},v?(v.length>70?v.slice(0,70)+"…":v):"—")));}));
+  $("#wizA").replaceChildren(el("h4",null,"Suas respostas"),...STEPS.map((s,k)=>{const v=(s.video?String(wiz.a.video||(String(wiz.a.videoNota||"").trim()?"Referência descrita":"")):String(wiz.a[s.id]||"")).trim();return el("button",{class:"ans"+(v?" done":"")+(k===wiz.i?" cur":""),onclick:()=>{wiz.i=k;renderWizard();}},el("span",{class:"n"},k+1),el("span",null,el("b",null,s.q),el("span",{class:"v"},v?(v.length>70?v.slice(0,70)+"…":v):"—")));}));
 }
 
 let rCtl=null,rDraft=null;
@@ -501,7 +503,8 @@ async function genRoteiro(){
   out.replaceChildren(el("div",{class:"out-card"},el("div",{class:"thinking"},el("span",{class:"dots"},el("i"),el("i"),el("i")),status,stop)));
   out.scrollIntoView({behavior:"smooth",block:"start"});
   const padrao=PADRAO_AREAS.includes(a.area);
-  const prompt=`${BASE}${ctxBlock(a.area)}
+  const refOn=hasRef();
+  const mkPrompt=sendImgs=>`${BASE}${ctxBlock(a.area)}
 
 Crie um roteiro de vídeo com estes dados:
 - Categoria: ${a.area}
@@ -511,20 +514,31 @@ Crie um roteiro de vídeo com estes dados:
 - Objetivo: ${a.objetivo}
 - Tom: ${a.tom}
 - Formato de gravação: ${a.formato}
-- Informações obrigatórias e CTA: ${(a.detalhes||"").trim()||"não informado"}${videoPrompt()}
+- Informações obrigatórias e CTA: ${(a.detalhes||"").trim()||"não informado"}${videoPrompt(sendImgs)}
 
 ${padrao?`${PADRAO}
 
 Monte o roteiro seguindo esse padrão, cobrindo exatamente a duração pedida.${ASSINATURAS[a.area]?` Use a assinatura "${ASSINATURAS[a.area]}".`:" Crie uma assinatura curta para a categoria, no mesmo espírito (trocadilho com o nome da categoria ou do clube)."}${a.area==="A&B"?" Em A&B, a comida e a bebida são as protagonistas: closes de preparo, textura e brinde, com a mesa de poker como cenário.":""} Adapte a linguagem à plataforma.
 Responda só com JSON neste formato:
-{"titulo":"título curto do vídeo","assinatura":"trocadilho da categoria","atos":["Preparação","Revelação","Experiência"],"mensagem":"a mensagem principal do vídeo em uma frase","cenas":[{"tempo":"0 a 1s","ato":"Preparação","cena":"descrição cinematográfica da cena","som":"fala entre aspas, som ou música, ou —"}],"lettering":"texto final em caixa alta","cta":"chamada final","legenda":"legenda do post","hashtags":["tag"],"dicas":["dica de gravação"]${vid.frames.length?',"referencia":"em 2 ou 3 frases, o que foi aproveitado da propaganda de inspiração (estrutura, ritmo, recursos)"':""}}`:`Divida em cenas com marcação de tempo que somem a duração pedida (a primeira cena é um gancho de até 3 segundos). Adapte a linguagem à plataforma.
+{"titulo":"título curto do vídeo","assinatura":"trocadilho da categoria","atos":["Preparação","Revelação","Experiência"],"mensagem":"a mensagem principal do vídeo em uma frase","cenas":[{"tempo":"0 a 1s","ato":"Preparação","cena":"descrição cinematográfica da cena","som":"fala entre aspas, som ou música, ou —"}],"lettering":"texto final em caixa alta","cta":"chamada final","legenda":"legenda do post","hashtags":["tag"],"dicas":["dica de gravação"]${refOn?',"referencia":"em 2 ou 3 frases, o que foi aproveitado da propaganda de inspiração (estrutura, ritmo, recursos)"':""}}`:`Divida em cenas com marcação de tempo que somem a duração pedida (a primeira cena é um gancho de até 3 segundos). Adapte a linguagem à plataforma.
 Responda só com JSON neste formato:
-{"titulo":"título curto do vídeo","mensagem":"a mensagem principal do vídeo em uma frase","cenas":[{"tempo":"0-3s","nome":"Gancho","visual":"o que aparece","fala":"o que é falado ou narrado","texto_tela":"texto na tela"}],"cta":"chamada final","legenda":"legenda do post","hashtags":["tag"],"dicas":["dica de gravação"]${vid.frames.length?',"referencia":"em 2 ou 3 frases, o que foi aproveitado da propaganda de inspiração (estrutura, ritmo, recursos)"':""}}`}`;
+{"titulo":"título curto do vídeo","mensagem":"a mensagem principal do vídeo em uma frase","cenas":[{"tempo":"0-3s","nome":"Gancho","visual":"o que aparece","fala":"o que é falado ou narrado","texto_tela":"texto na tela"}],"cta":"chamada final","legenda":"legenda do post","hashtags":["tag"],"dicas":["dica de gravação"]${refOn?',"referencia":"em 2 ou 3 frases, o que foi aproveitado da propaganda de inspiração (estrutura, ritmo, recursos)"':""}}`}`;
   try{
-    const opts={signal:rCtl.signal,cache:false};if(vid.frames.length)opts.images=vid.frames.map(f=>f.blob);
-    status.textContent=vid.frames.length?"Assistindo aos quadros da propaganda…":"Pensando no roteiro…";
-    const j=await sample.json(prompt,{...opts,onText:({text})=>{status.textContent=`Escrevendo o roteiro… ${text.length} caracteres`;}});
-    rDraft={tipo:"roteiro",area:a.area,titulo:String(j.titulo||"Roteiro sem título"),mensagem:String(j.mensagem||""),conteudo:padrao?fmtRoteiroH2(j,a):fmtRoteiro(j,a),meta:[a.duracao,a.plataforma,a.tom].filter(Boolean).join(" · "),inspiracao:vid.frames.length?vid.name:"",thumb:vid.thumb||""};
+    const onText=({text})=>{status.textContent=`Escrevendo o roteiro… ${text.length} caracteres`;};
+    let sendImgs=vid.frames.length>0&&vid.canImages!==false,j;
+    status.textContent=sendImgs?"Assistindo aos quadros da propaganda…":"Pensando no roteiro…";
+    try{
+      const opts={signal:rCtl.signal,cache:false,onText};if(sendImgs)opts.images=vid.frames.map(f=>f.blob);
+      j=await sample.json(mkPrompt(sendImgs),opts);
+    }catch(e){
+      /* A IA não aceitou os quadros neste acesso: gera uma vez sem eles, usando a descrição do time */
+      if(!sendImgs||!e||(e.code!=="images_unavailable"&&e.code!=="image_rejected"))throw e;
+      if(e.code==="images_unavailable"){vid.canImages=false;}
+      sendImgs=false;status.textContent="A IA não recebeu os quadros. Gerando pela descrição da propaganda…";
+      j=await sample.json(mkPrompt(false),{signal:rCtl.signal,cache:false,onText});
+      toast(wiz.a.videoNota&&wiz.a.videoNota.trim()?"A IA não recebeu os quadros. O roteiro usou a sua descrição da propaganda.":"A IA não recebeu os quadros. Descreva a propaganda para o roteiro seguir a referência.");
+    }
+    rDraft={tipo:"roteiro",area:a.area,titulo:String(j.titulo||"Roteiro sem título"),mensagem:String(j.mensagem||""),conteudo:padrao?fmtRoteiroH2(j,a):fmtRoteiro(j,a),meta:[a.duracao,a.plataforma,a.tom].filter(Boolean).join(" · "),inspiracao:refOn?(vid.name||"Referência descrita"):"",thumb:vid.thumb||""};
     showDraft();
   }catch(e){
     if(e&&e.code==="cancelled"){out.replaceChildren(el("div",{class:"out-card"},el("span",{class:"note"},"Geração interrompida."),el("div",{class:"row"},el("button",{class:"btn btn-violet btn-sm",onclick:genRoteiro},"Gerar de novo"))));return;}
@@ -760,13 +774,20 @@ function openItem(id,mode){
 
 /* ---------- video de inspiração ---------- */
 const vid={name:"",url:"",dur:0,frames:[],thumb:"",status:"",busy:false,max:8,canImages:null};
-async function imgLimits(){if(vid.canImages!==null||!sample)return;try{const l=await sample.limits();vid.canImages=!!(l&&l.images);if(l&&l.images)vid.max=Math.max(1,Math.min(8,l.images.maxCount||8));}catch(e){vid.canImages=false;}if(STEPS[wiz.i].video)renderWizard();}
-function clearVideo(){vid.frames.forEach(f=>URL.revokeObjectURL(f.url));if(vid.url)URL.revokeObjectURL(vid.url);Object.assign(vid,{name:"",url:"",dur:0,frames:[],thumb:"",status:"",busy:false});delete wiz.a.video;delete wiz.a.videoNota;}
+let limitsAsked=false;
+/* true: este acesso manda imagens; false: não manda; null: não se sabe (tenta enviar e, se recusar, segue pela descrição) */
+async function imgLimits(){if(limitsAsked||!sample)return;limitsAsked=true;try{const l=await sample.limits();vid.canImages=!!(l&&l.images);if(l&&l.images)vid.max=Math.max(1,Math.min(8,l.images.maxCount||8));}catch(e){vid.canImages=null;}if(STEPS[wiz.i].video)renderWizard();}
+const hasRef=()=>vid.frames.length>0||!!String(wiz.a.videoNota||"").trim();
+function clearVideo(){vid.frames.forEach(f=>URL.revokeObjectURL(f.url));if(vid.url)URL.revokeObjectURL(vid.url);Object.assign(vid,{name:"",url:"",dur:0,frames:[],thumb:"",status:"",busy:false});delete wiz.a.video;}
 const fmtT=t=>{const m=Math.floor(t/60),s=Math.round(t%60);return m?`${m}:${String(s).padStart(2,"0")}`:`${s}s`;};
 function videoStep(){
   if(!sample)return[el("p",{class:"note"},"Geração indisponível nesta visualização.")];
-  if(vid.canImages===null){imgLimits();return[el("p",{class:"note"},"Verificando se este acesso pode enviar imagens para a IA…")];}
-  if(!vid.canImages)return[el("div",{class:"err"},"Este acesso ao Claude não permite enviar imagens para a IA, então a propaganda não pode ser analisada aqui. Descreva a referência na pergunta \"Sobre o que o vídeo aborda?\" e siga em frente.")];
+  imgLimits();
+  const semImg=vid.canImages===false;
+  const aviso=semImg?el("div",{class:"info"},el("b",null,"Neste acesso, a IA não recebe imagens do vídeo."),el("span",null," Anexe a propaganda mesmo assim para ver os quadros e descreva no campo abaixo o que acontece nela. O roteiro segue a sua descrição. Para a IA ver os quadros, abra o site pelo navegador, em claude.ai.")):null;
+  const nota=el("textarea",{class:"field",id:"vNota",rows:semImg?"5":"3",placeholder:semImg?"Descreva a propaganda: como começa (gancho), ritmo dos cortes, enquadramentos e movimentos de câmera, texto na tela, música e como termina. Ex.: abre com close no rosto, cortes a cada 1s, texto grande em amarelo, música eletrônica que cresce, termina no logo.":"O que você quer aproveitar? Ex.: o gancho com close, os cortes rápidos, o texto grande na tela. Se a fala ou a música importarem, descreva aqui."});
+  nota.value=wiz.a.videoNota||"";nota.addEventListener("input",()=>{wiz.a.videoNota=nota.value;renderAnswers();});
+  const notaBox=el("div",null,el("label",{class:"lbl",for:"vNota"},semImg?"Descrição da propaganda":"O que aproveitar dessa referência (opcional)"),nota);
   if(!vid.url){
     const inp=el("input",{type:"file",accept:"video/*",id:"vFile","aria-label":"Escolher vídeo"});
     inp.addEventListener("change",()=>{if(inp.files&&inp.files[0])loadVideo(inp.files[0]);});
@@ -774,20 +795,19 @@ function videoStep(){
     drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("over");});
     drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
     drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("over");const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(f)loadVideo(f);});
-    const k=[drop];if(vid.status)k.push(el("div",{class:"err"},vid.status));
-    k.push(el("p",{class:"note",style:"margin:0"},"Sem vídeo? Clique em Próxima e siga só com as perguntas."));
-    return k;
+    const k=[aviso,drop];if(vid.status)k.push(el("div",{class:"err"},vid.status));
+    if(semImg)k.push(notaBox);
+    k.push(el("p",{class:"note",style:"margin:0"},"Sem referência? Clique em Próxima e siga só com as perguntas."));
+    return k.filter(Boolean);
   }
   const v=el("video",{src:vid.url,controls:true,muted:true,playsinline:true,preload:"metadata"});
-  const nota=el("textarea",{class:"field",id:"vNota",rows:"3",placeholder:"O que você quer aproveitar? Ex.: o gancho com close, os cortes rápidos, o texto grande na tela. Se a fala ou a música importarem, descreva aqui."});
-  nota.value=wiz.a.videoNota||"";nota.addEventListener("input",()=>{wiz.a.videoNota=nota.value;});
   const info=el("div",{class:"vinfo"},
     el("span",{class:"vname"},vid.name),
-    el("span",{class:"note"},vid.busy?"Separando os quadros do vídeo…":`${fmtT(vid.dur)} · ${vid.frames.length} quadros vão para a IA`),
+    el("span",{class:"note"},vid.busy?"Separando os quadros do vídeo…":`${fmtT(vid.dur)} · ${vid.frames.length} quadros${semImg?" (só para você ver)":" vão para a IA"}`),
     vid.frames.length?el("div",{class:"frames"},vid.frames.map(f=>el("figure",null,el("img",{src:f.url,alt:"Quadro em "+fmtT(f.t)}),el("figcaption",null,fmtT(f.t))))):null,
     vid.status?el("div",{class:"err"},vid.status):null,
     el("div",null,el("button",{class:"btn btn-ghost btn-sm",onclick:()=>{clearVideo();renderWizard();}},"Trocar ou remover vídeo")));
-  return[el("div",{class:"vbox"},v,info),el("div",null,el("label",{class:"lbl",for:"vNota"},"O que aproveitar dessa referência (opcional)"),nota),el("p",{class:"note",style:"margin:0"},"A IA vê quadros do vídeo, não ouve o áudio. O roteiro sai original para a H2, sem copiar a marca da referência.")];
+  return[aviso,el("div",{class:"vbox"},v,info),notaBox,el("p",{class:"note",style:"margin:0"},semImg?"O roteiro sai original para a H2, sem copiar a marca da referência.":"A IA vê quadros do vídeo, não ouve o áudio. O roteiro sai original para a H2, sem copiar a marca da referência.")].filter(Boolean);
 }
 function waitEv(t,ev,ms){return new Promise((res,rej)=>{const tm=setTimeout(()=>rej(new Error("timeout")),ms);t.addEventListener(ev,()=>{clearTimeout(tm);res();},{once:true});t.addEventListener("error",()=>{clearTimeout(tm);rej(new Error("decode"));},{once:true});});}
 function snap(v,w){const c=document.createElement("canvas");const r=v.videoWidth/v.videoHeight||1;c.width=w;c.height=Math.round(w/r);c.getContext("2d").drawImage(v,0,0,c.width,c.height);return c;}
@@ -809,12 +829,19 @@ async function loadVideo(file){
   }catch(e){vid.status="Não deu para ler esse vídeo no navegador. Tente exportar em MP4 (H.264) e anexar de novo.";vid.frames=[];}
   vid.busy=false;if(STEPS[wiz.i].video)renderWizard();else renderAnswers();
 }
-function videoPrompt(){
-  if(!vid.frames.length)return"";
-  return `
+function videoPrompt(sendImgs){
+  const nota=String(wiz.a.videoNota||"").trim();
+  const regras="Monte o roteiro da H2 seguindo essa mesma lógica e estilo, adaptado ao assunto e à duração pedidos. O roteiro deve ser original: não copie a marca, o produto, falas, slogans ou pessoas da referência.";
+  if(sendImgs&&vid.frames.length)return `
 
 PROPAGANDA DE INSPIRAÇÃO: anexei ${vid.frames.length} quadros de um vídeo de referência ("${vid.name}", ${Math.round(vid.dur)} segundos), em ordem, nos tempos ${vid.frames.map(f=>fmtT(f.t)).join(", ")}.
-${(wiz.a.videoNota||"").trim()?"O que o time quer aproveitar dela: "+wiz.a.videoNota.trim()+"\n":""}Analise como ela é construída: gancho, ritmo de cortes, enquadramentos, movimento de câmera, uso de texto na tela, cores e clima, e como chega no CTA. Monte o roteiro da H2 seguindo essa mesma lógica e estilo, adaptado ao assunto e à duração pedidos. O roteiro deve ser original: não copie a marca, o produto, falas, slogans ou pessoas da referência. Você só vê os quadros, não o áudio.`;
+${nota?"O que o time quer aproveitar dela: "+nota+"\n":""}Analise como ela é construída: gancho, ritmo de cortes, enquadramentos, movimento de câmera, uso de texto na tela, cores e clima, e como chega no CTA. ${regras} Você só vê os quadros, não o áudio.`;
+  if(!nota&&!vid.frames.length)return"";
+  return `
+
+PROPAGANDA DE INSPIRAÇÃO: o time usou uma propaganda como referência${vid.name?` ("${vid.name}"${vid.dur?`, ${Math.round(vid.dur)} segundos`:""})`:""}. Você não vê o vídeo, só a descrição do time.
+${nota?"Descrição do time: "+nota:"O time não descreveu a propaganda: siga um ritmo de cortes rápidos e um gancho forte, típicos de propaganda."}
+${regras}`;
 }
 $("#jumpVideo").addEventListener("click",()=>{setTab("roteiro");wiz.i=1;renderWizard();$("#paneRoteiro").scrollIntoView({behavior:"smooth",block:"start"});});
 
