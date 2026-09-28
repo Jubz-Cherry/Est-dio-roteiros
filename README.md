@@ -49,3 +49,4 @@ Edite `estudio-h2.html` e republique no mesmo Artifact (mesmo link), mantendo as
 - **v2:** pergunta de propaganda de inspiração, com envio de até 8 quadros do vídeo para a IA.
 - **v3:** padrão de roteiro da H2 (três atos, tabela Tempo | Cena | Fala / Som e packshot) em Torneio, Cash Game, Home Game e A&B, e botão "Copiar tabela".
 - **v4:** a propaganda de inspiração funciona também onde a IA não recebe imagens. O vídeo continua podendo ser anexado, a descrição da propaganda entra no lugar dos quadros e, se a IA recusar os quadros na hora de gerar, o roteiro é gerado uma vez sem eles.
+- **v5:** análise automática da propaganda, feita no navegador sem IA: cortes, duração dos planos, formato, cores, movimento da câmera e volume do áudio. A análise vai para a IA em toda geração com referência, e a descrição das cenas fica opcional.

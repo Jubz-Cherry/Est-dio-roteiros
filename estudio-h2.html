@@ -152,6 +152,10 @@ textarea.field{min-height:110px;line-height:1.5}
 .frames{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px}
 .frames figure{margin:0;position:relative}
 .frames img{width:100%;aspect-ratio:9/12;object-fit:cover;border-radius:8px;display:block;background:var(--card-2)}
+.tl{display:flex;height:16px;border-radius:6px;overflow:hidden;gap:2px}
+.tl i{display:block;min-width:2px;height:100%}
+.ana{display:flex;flex-wrap:wrap;gap:6px}
+.ana span{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--sheet);color:var(--ink-2);font-variant-numeric:tabular-nums}
 .frames figcaption{position:absolute;left:4px;bottom:4px;font-size:10px;font-weight:800;padding:1px 5px;border-radius:5px;background:rgba(10,6,30,.7);color:#fff;font-variant-numeric:tabular-nums}
 .vlink{background:none;border:0;padding:0;color:var(--violet);font-weight:700;font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
 .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:16px;display:block;background:var(--card-2)}
@@ -773,21 +777,21 @@ function openItem(id,mode){
 }
 
 /* ---------- video de inspiração ---------- */
-const vid={name:"",url:"",dur:0,frames:[],thumb:"",status:"",busy:false,max:8,canImages:null};
+const vid={name:"",url:"",dur:0,frames:[],thumb:"",status:"",busy:false,max:8,canImages:null,ana:null,prog:""};
 let limitsAsked=false;
 /* true: este acesso manda imagens; false: não manda; null: não se sabe (tenta enviar e, se recusar, segue pela descrição) */
 async function imgLimits(){if(limitsAsked||!sample)return;limitsAsked=true;try{const l=await sample.limits();vid.canImages=!!(l&&l.images);if(l&&l.images)vid.max=Math.max(1,Math.min(8,l.images.maxCount||8));}catch(e){vid.canImages=null;}if(STEPS[wiz.i].video)renderWizard();}
-const hasRef=()=>vid.frames.length>0||!!String(wiz.a.videoNota||"").trim();
-function clearVideo(){vid.frames.forEach(f=>URL.revokeObjectURL(f.url));if(vid.url)URL.revokeObjectURL(vid.url);Object.assign(vid,{name:"",url:"",dur:0,frames:[],thumb:"",status:"",busy:false});delete wiz.a.video;}
+const hasRef=()=>vid.frames.length>0||!!vid.ana||!!String(wiz.a.videoNota||"").trim();
+function clearVideo(){vid.frames.forEach(f=>URL.revokeObjectURL(f.url));if(vid.url)URL.revokeObjectURL(vid.url);Object.assign(vid,{name:"",url:"",dur:0,frames:[],thumb:"",status:"",busy:false,ana:null,prog:""});delete wiz.a.video;}
 const fmtT=t=>{const m=Math.floor(t/60),s=Math.round(t%60);return m?`${m}:${String(s).padStart(2,"0")}`:`${s}s`;};
 function videoStep(){
   if(!sample)return[el("p",{class:"note"},"Geração indisponível nesta visualização.")];
   imgLimits();
   const semImg=vid.canImages===false;
-  const aviso=semImg?el("div",{class:"info"},el("b",null,"Neste acesso, a IA não recebe imagens do vídeo."),el("span",null," Anexe a propaganda mesmo assim para ver os quadros e descreva no campo abaixo o que acontece nela. O roteiro segue a sua descrição. Para a IA ver os quadros, abra o site pelo navegador, em claude.ai.")):null;
-  const nota=el("textarea",{class:"field",id:"vNota",rows:semImg?"5":"3",placeholder:semImg?"Descreva a propaganda: como começa (gancho), ritmo dos cortes, enquadramentos e movimentos de câmera, texto na tela, música e como termina. Ex.: abre com close no rosto, cortes a cada 1s, texto grande em amarelo, música eletrônica que cresce, termina no logo.":"O que você quer aproveitar? Ex.: o gancho com close, os cortes rápidos, o texto grande na tela. Se a fala ou a música importarem, descreva aqui."});
+  const aviso=semImg?el("div",{class:"info"},el("b",null,"Neste acesso, a IA não vê as imagens do vídeo."),el("span",null," Não tem problema: ao anexar a propaganda, o site mede sozinho os cortes, o ritmo, as cores, o movimento da câmera e o volume do áudio, e manda essa análise para a IA. Se quiser, conte em uma frase o que acontece nas cenas.")):null;
+  const nota=el("textarea",{class:"field",id:"vNota",rows:"3",placeholder:semImg?"Em uma frase, quem aparece e o que acontece. Ex.: amigos numa mesa, alguém vai all-in, todo mundo comemora, termina no logo.":"O que você quer aproveitar? Ex.: o gancho com close, os cortes rápidos, o texto grande na tela. Se a fala ou a música importarem, descreva aqui."});
   nota.value=wiz.a.videoNota||"";nota.addEventListener("input",()=>{wiz.a.videoNota=nota.value;renderAnswers();});
-  const notaBox=el("div",null,el("label",{class:"lbl",for:"vNota"},semImg?"Descrição da propaganda":"O que aproveitar dessa referência (opcional)"),nota);
+  const notaBox=el("div",null,el("label",{class:"lbl",for:"vNota"},semImg?"O que acontece nas cenas (opcional)":"O que aproveitar dessa referência (opcional)"),nota);
   if(!vid.url){
     const inp=el("input",{type:"file",accept:"video/*",id:"vFile","aria-label":"Escolher vídeo"});
     inp.addEventListener("change",()=>{if(inp.files&&inp.files[0])loadVideo(inp.files[0]);});
@@ -796,18 +800,18 @@ function videoStep(){
     drop.addEventListener("dragleave",()=>drop.classList.remove("over"));
     drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("over");const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(f)loadVideo(f);});
     const k=[aviso,drop];if(vid.status)k.push(el("div",{class:"err"},vid.status));
-    if(semImg)k.push(notaBox);
     k.push(el("p",{class:"note",style:"margin:0"},"Sem referência? Clique em Próxima e siga só com as perguntas."));
     return k.filter(Boolean);
   }
   const v=el("video",{src:vid.url,controls:true,muted:true,playsinline:true,preload:"metadata"});
   const info=el("div",{class:"vinfo"},
     el("span",{class:"vname"},vid.name),
-    el("span",{class:"note"},vid.busy?"Separando os quadros do vídeo…":`${fmtT(vid.dur)} · ${vid.frames.length} quadros${semImg?" (só para você ver)":" vão para a IA"}`),
+    el("span",{class:"note"},vid.busy?(vid.prog||"Separando os quadros do vídeo…"):`${fmtT(vid.dur)} · ${vid.frames.length} quadros${semImg?" (só para você ver)":" vão para a IA"}`),
+    vid.ana?anaView(vid.ana):null,
     vid.frames.length?el("div",{class:"frames"},vid.frames.map(f=>el("figure",null,el("img",{src:f.url,alt:"Quadro em "+fmtT(f.t)}),el("figcaption",null,fmtT(f.t))))):null,
     vid.status?el("div",{class:"err"},vid.status):null,
     el("div",null,el("button",{class:"btn btn-ghost btn-sm",onclick:()=>{clearVideo();renderWizard();}},"Trocar ou remover vídeo")));
-  return[aviso,el("div",{class:"vbox"},v,info),notaBox,el("p",{class:"note",style:"margin:0"},semImg?"O roteiro sai original para a H2, sem copiar a marca da referência.":"A IA vê quadros do vídeo, não ouve o áudio. O roteiro sai original para a H2, sem copiar a marca da referência.")].filter(Boolean);
+  return[aviso,el("div",{class:"vbox"},v,info),notaBox,el("p",{class:"note",style:"margin:0"},semImg?"A análise automática não identifica pessoas, objetos nem falas. O roteiro sai original para a H2, sem copiar a marca da referência.":"A IA vê quadros do vídeo e recebe a análise de cortes e áudio medida pelo site. O roteiro sai original para a H2, sem copiar a marca da referência.")].filter(Boolean);
 }
 function waitEv(t,ev,ms){return new Promise((res,rej)=>{const tm=setTimeout(()=>rej(new Error("timeout")),ms);t.addEventListener(ev,()=>{clearTimeout(tm);res();},{once:true});t.addEventListener("error",()=>{clearTimeout(tm);rej(new Error("decode"));},{once:true});});}
 function snap(v,w){const c=document.createElement("canvas");const r=v.videoWidth/v.videoHeight||1;c.width=w;c.height=Math.round(w/r);c.getContext("2d").drawImage(v,0,0,c.width,c.height);return c;}
@@ -826,8 +830,95 @@ async function loadVideo(file){
       if(t===times[Math.floor(n/2)]){vid.thumb=snap(v,320).toDataURL("image/jpeg",0.7);}}
     if(!out.length)throw new Error("empty");
     vid.frames=out;
-  }catch(e){vid.status="Não deu para ler esse vídeo no navegador. Tente exportar em MP4 (H.264) e anexar de novo.";vid.frames=[];}
+    try{vid.ana=await analisarVideo(v,d,file);}catch(e){vid.ana=null;}
+  }catch(e){vid.status="Não deu para ler esse vídeo no navegador. Tente exportar em MP4 (H.264) e anexar de novo.";vid.frames=[];vid.ana=null;}
   vid.busy=false;if(STEPS[wiz.i].video)renderWizard();else renderAnswers();
+}
+/* ---------- análise automática do vídeo (feita no navegador, sem IA) ---------- */
+function corNome(r,g,b){
+  r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,dl=mx-mn;
+  if(l<0.12)return"preto";if(l>0.88)return"branco";
+  const sat=dl===0?0:dl/(1-Math.abs(2*l-1));
+  const esc=l<0.32?" escuro":"";
+  if(sat<0.16)return l<0.4?"cinza escuro":"cinza";
+  let h=dl===0?0:mx===r?((g-b)/dl)%6:mx===g?(b-r)/dl+2:(r-g)/dl+4;h=(h*60+360)%360;
+  const n=h<15||h>=345?"vermelho":h<40?"laranja":h<65?"amarelo/dourado":h<170?"verde":h<200?"ciano":h<250?"azul":h<290?"roxo":"rosa/magenta";
+  return n+esc;
+}
+function progVid(t){vid.prog=t;if(STEPS[wiz.i].video){const n=document.querySelector("#wizQ .vinfo .note");if(n)n.textContent=t;}}
+async function analisarVideo(v,d,file){
+  const W=32,H=18,c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d",{willReadFrequently:true});
+  const step=Math.min(1,Math.max(1/8,d/220)),N=Math.floor(d/step);
+  const samp=[];let prev=null;
+  for(let k=0;k<=N;k++){
+    const t=Math.min(d-0.04,k*step+0.02);v.currentTime=t;await waitEv(v,"seeked",8000);
+    g.drawImage(v,0,0,W,H);const px=g.getImageData(0,0,W,H).data;
+    const hist=new Float32Array(64),lu=new Float32Array(W*H);let R=0,G=0,B=0;
+    for(let i=0,j=0;i<px.length;i+=4,j++){const r=px[i],gg=px[i+1],b=px[i+2];R+=r;G+=gg;B+=b;lu[j]=0.299*r+0.587*gg+0.114*b;hist[(r>>6)*16+(gg>>6)*4+(b>>6)]++;}
+    const np=W*H;for(let i=0;i<64;i++)hist[i]/=np;
+    let hd=0,ld=0;if(prev){for(let i=0;i<64;i++)hd+=Math.abs(hist[i]-prev.hist[i]);for(let i=0;i<np;i++)ld+=Math.abs(lu[i]-prev.lu[i]);ld/=np;}
+    let lum=0;for(let i=0;i<np;i++)lum+=lu[i];
+    const s={t,hd,ld,rgb:[R/np,G/np,B/np],lum:lum/np/255,hist,lu};samp.push(s);prev=s;
+    if(k%10===0)progVid(`Analisando cortes e cores… ${Math.round(k/N*100)}%`);
+  }
+  /* cortes: mudança grande de cor ou de luz entre duas amostras seguidas */
+  const cuts=[0];
+  for(let k=1;k<samp.length;k++){const s=samp[k];if((s.hd>0.55||s.ld>38)&&s.t-cuts[cuts.length-1]>=0.3)cuts.push(s.t-step/2);}
+  const shots=cuts.map((a,i)=>{const b=i+1<cuts.length?cuts[i+1]:d;const ss=samp.filter(x=>x.t>=a&&x.t<b);const inner=ss.slice(1);
+    const rgb=[0,1,2].map(q=>ss.reduce((m,x)=>m+x.rgb[q],0)/Math.max(1,ss.length));
+    const mov=inner.length?inner.reduce((m,x)=>m+x.ld,0)/inner.length:0;
+    const lum=ss.reduce((m,x)=>m+x.lum,0)/Math.max(1,ss.length);
+    return{a,b,rgb,cor:corNome(...rgb),mov:mov<3?"câmera parada":mov<9?"movimento leve":"movimento forte",lum};});
+  const lens=shots.map(x=>x.b-x.a),media=d/shots.length;
+  const terco=[0,1,2].map(q=>cuts.filter(t=>t>0&&t>=d*q/3&&t<d*(q+1)/3).length);
+  const ratio=v.videoWidth/v.videoHeight;
+  const formato=ratio<0.7?"vertical (9:16)":ratio<0.9?"vertical (4:5)":ratio<1.15?"quadrado (1:1)":"horizontal (16:9)";
+  const cores={};shots.forEach((x,i)=>{cores[x.cor]=(cores[x.cor]||0)+lens[i];});
+  const paleta=Object.entries(cores).sort((p,q)=>q[1]-p[1]).slice(0,3).map(p=>p[0]);
+  const lumMed=samp.reduce((m,x)=>m+x.lum,0)/samp.length;
+  progVid("Analisando o áudio…");
+  let audio=null;try{audio=await analisarAudio(file,d);}catch(e){audio=null;}
+  samp.length=0;
+  return{d,formato,shots,cortes:shots.length-1,media,min:Math.min(...lens),max:Math.max(...lens),terco,paleta,clima:lumMed<0.3?"escuro":lumMed>0.6?"claro":"médio",audio};
+}
+async function analisarAudio(file,d){
+  if(file.size>120e6)return null;
+  const AC=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(!AC)return null;
+  const ab=await new AC(1,8000,8000).decodeAudioData(await file.arrayBuffer());
+  const ch=ab.getChannelData(0),sr=ab.sampleRate,win=Math.max(1,Math.floor(sr*0.5)),rms=[];
+  for(let i=0;i+win<=ch.length;i+=win){let q=0;for(let j=i;j<i+win;j+=4)q+=ch[j]*ch[j];rms.push(Math.sqrt(q/(win/4)));}
+  if(!rms.length)return null;
+  const mx=Math.max(...rms);if(mx<0.004)return{tem:false};
+  const n=rms.map(x=>x/mx),med=n.reduce((a,b)=>a+b,0)/n.length;
+  const t3=Math.max(1,Math.floor(n.length/3)),m=(a,b)=>{const sl=n.slice(a,b);return sl.reduce((x,y)=>x+y,0)/Math.max(1,sl.length);};
+  const ini=m(0,t3),fim=m(n.length-t3,n.length);
+  const trend=fim>ini*1.35?"cresce ao longo do vídeo":fim<ini*0.7?"diminui no final":"fica constante";
+  const picos=[];n.map((x,i)=>[x,i*0.5]).sort((a,b)=>b[0]-a[0]).forEach(([x,t])=>{if(picos.length<3&&x>med*1.3&&picos.every(p=>Math.abs(p-t)>2))picos.push(t);});
+  const sil=[];let st=null;n.forEach((x,i)=>{if(x<0.08){if(st===null)st=i*0.5;}else{if(st!==null&&i*0.5-st>=1)sil.push([st,i*0.5]);st=null;}});
+  if(st!==null&&n.length*0.5-st>=1)sil.push([st,n.length*0.5]);
+  return{tem:true,trend,picos:picos.sort((a,b)=>a-b),sil:sil.slice(0,4)};
+}
+const fs1=x=>x.toFixed(1).replace(".",",")+"s";
+function anaView(a){
+  const chips=[a.formato,`${a.cortes} cortes`,`${fs1(a.media)} por plano`,"tons "+a.paleta.join(", "),a.audio?(a.audio.tem?"áudio "+a.audio.trend:"sem áudio"):"áudio não lido"];
+  return el("div",{style:"display:flex;flex-direction:column;gap:8px"},
+    el("div",{class:"tl","aria-label":"Linha do tempo dos planos"},a.shots.map(x=>el("i",{title:`${fs1(x.a)} a ${fs1(x.b)} · ${x.cor} · ${x.mov}`,style:`flex:${(x.b-x.a).toFixed(2)};background:rgb(${x.rgb.map(Math.round).join(",")})`}))),
+    el("div",{class:"ana"},chips.map(t=>el("span",null,t))));
+}
+function anaTexto(a){
+  if(!a)return"";
+  const L=[`ANÁLISE AUTOMÁTICA DO VÍDEO (medida pelo site, quadro a quadro; não identifica pessoas, objetos nem falas):`,
+  `- Duração ${fs1(a.d)}, formato ${a.formato}, imagem de clima ${a.clima}.`,
+  `- ${a.cortes} cortes, ${a.shots.length} planos, média de ${fs1(a.media)} por plano (o mais curto ${fs1(a.min)}, o mais longo ${fs1(a.max)}).`,
+  `- Cortes por terço do vídeo: início ${a.terco[0]}, meio ${a.terco[1]}, final ${a.terco[2]}.`,
+  `- Tons dominantes: ${a.paleta.join(", ")}.`];
+  if(a.audio)L.push(a.audio.tem?`- Áudio: volume ${a.audio.trend}${a.audio.picos.length?`; picos de volume em ${a.audio.picos.map(fs1).join(", ")}`:""}${a.audio.sil.length?`; silêncio em ${a.audio.sil.map(x=>fs1(x[0])+" a "+fs1(x[1])).join(", ")}`:""}.`:"- Áudio: o vídeo não tem som.");
+  L.push("- Planos:");
+  const sh=a.shots.length>40?a.shots.slice(0,40):a.shots;
+  sh.forEach((x,i)=>L.push(`  ${i+1}. ${fs1(x.a)} a ${fs1(x.b)} · tons ${x.cor} · ${x.mov}`));
+  if(a.shots.length>40)L.push(`  … e mais ${a.shots.length-40} planos no mesmo ritmo.`);
+  L.push("Use essa análise para reproduzir o ritmo: número e duração dos planos proporcionais à duração pedida, onde os cortes aceleram, onde entram os picos e silêncios do áudio, e o clima de cor.");
+  return L.join("\n");
 }
 function videoPrompt(sendImgs){
   const nota=String(wiz.a.videoNota||"").trim();
@@ -835,12 +926,12 @@ function videoPrompt(sendImgs){
   if(sendImgs&&vid.frames.length)return `
 
 PROPAGANDA DE INSPIRAÇÃO: anexei ${vid.frames.length} quadros de um vídeo de referência ("${vid.name}", ${Math.round(vid.dur)} segundos), em ordem, nos tempos ${vid.frames.map(f=>fmtT(f.t)).join(", ")}.
-${nota?"O que o time quer aproveitar dela: "+nota+"\n":""}Analise como ela é construída: gancho, ritmo de cortes, enquadramentos, movimento de câmera, uso de texto na tela, cores e clima, e como chega no CTA. ${regras} Você só vê os quadros, não o áudio.`;
-  if(!nota&&!vid.frames.length)return"";
+${nota?"O que o time quer aproveitar dela: "+nota+"\n":""}${vid.ana?anaTexto(vid.ana)+"\n":""}Analise como ela é construída: gancho, ritmo de cortes, enquadramentos, movimento de câmera, uso de texto na tela, cores e clima, e como chega no CTA. ${regras} Você só vê os quadros e a análise, não ouve o áudio.`;
+  if(!nota&&!vid.frames.length&&!vid.ana)return"";
   return `
 
-PROPAGANDA DE INSPIRAÇÃO: o time usou uma propaganda como referência${vid.name?` ("${vid.name}"${vid.dur?`, ${Math.round(vid.dur)} segundos`:""})`:""}. Você não vê o vídeo, só a descrição do time.
-${nota?"Descrição do time: "+nota:"O time não descreveu a propaganda: siga um ritmo de cortes rápidos e um gancho forte, típicos de propaganda."}
+PROPAGANDA DE INSPIRAÇÃO: o time usou uma propaganda como referência${vid.name?` ("${vid.name}"${vid.dur?`, ${Math.round(vid.dur)} segundos`:""})`:""}. Você não vê o vídeo: recebe a análise medida automaticamente pelo site${nota?" e a descrição do time":""}.
+${vid.ana?anaTexto(vid.ana)+"\n":""}${nota?"O que acontece nas cenas, segundo o time: "+nota:(vid.ana?"O time não descreveu as cenas: invente cenas da H2 que caibam nesse ritmo, nessas cores e nesse clima.":"O time não descreveu a propaganda: siga um ritmo de cortes rápidos e um gancho forte, típicos de propaganda.")}
 ${regras}`;
 }
 $("#jumpVideo").addEventListener("click",()=>{setTab("roteiro");wiz.i=1;renderWizard();$("#paneRoteiro").scrollIntoView({behavior:"smooth",block:"start"});});
