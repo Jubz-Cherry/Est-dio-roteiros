@@ -397,7 +397,7 @@ details.ctx[open] summary::after{content:"–"}
 
 <script>
 (function(){
-const AREAS=["Torneio","Cash Game","Home Game","A&B","Institucional"];
+const AREAS=["Torneio","Cash Game","Home Game","A&B","CPH"];
 const I={
  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
@@ -433,7 +433,7 @@ const BASE=`Você é roteirista e estrategista de conteúdo do time de marketing
 Escreva em português do Brasil, com linguagem natural de redes sociais.
 Regras: nunca prometa ganhos nem trate o poker como fonte de renda; o público é +18; quando fizer sentido, reforce jogo responsável; não invente datas, valores, prêmios, pratos ou preços que não foram informados: use marcadores entre colchetes, como [data] ou [valor do buy-in], para o time preencher.`;
 /* Padrão de roteiro da H2 (base: tarefa "Mkt Live SP | ADS | Roteiros | Home Game | 2026 | 01" do ClickUp) */
-const PADRAO_AREAS=["Torneio","Cash Game","Home Game","A&B"];
+const PADRAO_AREAS=["Torneio","Cash Game","Home Game","A&B","CPH"];
 const ASSINATURAS={"Home Game":"A nossa Home, o seu Game!"};
 const PADRAO=`PADRÃO DE ROTEIRO DA H2 (é o modelo que o time usa; siga à risca):
 - Cabeçalho: "[CATEGORIA EM CAIXA ALTA] H2 — [assinatura]". A assinatura é um trocadilho curto que se repete no lettering final.
@@ -453,7 +453,29 @@ TRECHO DE UM ROTEIRO DE REFERÊNCIA (Home Game, 30s, "A nossa home. O seu game."
 14 a 16s | POV do espectador: o dealer desliza duas cartas em direção à câmera. Os amigos olham direto para a lente, com cara de "e aí, você entra?".
 27 a 30s | Logo da H2 grande sobre a cena, com a chamada "HOME GAME — NOSSA HOME É SEU GAME" e a ficha H2 integrada ao lettering.
 Outro roteiro da mesma série começa com funcionários preparando a mesa vazia em checklist falado ("Baralho?", "Fichas?", "Mesa?"), com som da ficha no feltro, até a porta abrir, a música crescer e match cuts levarem da cadeira vazia para a pessoa sentando.`;
-function ctxBlock(area){let s="";if(clube.sobre.trim())s+="\n\nInformações do clube (use como referência de fatos e tom de voz):\n"+clube.sobre.trim().slice(0,6000);if(area==="A&B"){s+=clube.cardapio.trim()?"\n\nCardápio de A&B do clube (use só itens desta lista):\n"+clube.cardapio.trim().slice(0,6000):"\n\nO cardápio não foi informado: use marcadores como [nome do prato] e [nome do drink].";}return s;}
+/* CPH: Campeonato Paulista de Poker (território de marca e narrativa do Main Event) */
+const CPH=`SOBRE O CPH (esta demanda é do CPH; use isto como território de marca):
+O CPH — Campeonato Paulista de Poker — é o maior campeonato estadual de poker do país. A temporada tem 9 etapas, com média de 35 a 40 torneios por etapa e mais de R$ 30 milhões distribuídos em premiações ao longo do ano.
+A comunicação não se limita a grade, buy-in e garantido. O CPH é tratado como campeonato: existe temporada, Ranking, frequência, campeões, Main Event, December Nine e uma história construída etapa após etapa. Não comunicamos nove eventos isolados: contamos uma temporada.
+
+Pilares do território de marca:
+- História e legado: o CPH faz parte da construção da história do poker competitivo brasileiro. Cada campeão adiciona um novo capítulo.
+- Tradição e credibilidade: tradição não se compra. É construída etapa após etapa, jogador após jogador, campeão após campeão.
+- Técnica: valorizar estrutura, jogabilidade, field e tomada de decisão. O Main Event é um título desejado no currículo.
+- Relevância: grandeza, recorrência, premiações, Ranking, grandes jogadores e repercussão reforçam o peso do campeonato.
+- Pertencimento: é o Campeonato Paulista. Mobilizar São Paulo e, ao mesmo tempo, ampliar o engajamento nacional.
+
+Main Event CPH | O título que vira legado:
+- História e autoridade: explorar a longevidade e o papel do CPH na construção do poker competitivo brasileiro. A narrativa de origem é poderosa: "o primeiro torneio de poker do Brasil".
+- Tradição construída ao longo dos anos: a recorrência de etapas, gerações de jogadores e campeões cria memória e credibilidade. O Main Event transforma essa tradição em desejo de conquista.
+- Palco de grandes jogadores: grandes nomes são personagens da temporada, não só registros de cobertura: quem joga, quem venceu, quem voltou, quem pontua e quem busca o título.
+- Estrutura técnica e jogabilidade: valorizar a estrutura equilibrada, níveis de blinds, profundidade e espaço para habilidade, leitura e tomada de decisão. O Main Event é um torneio que respeita o jogador.
+- Peso no Ranking: conectar o Main Event à corrida anual. Um grande resultado pode alterar a posição de um jogador e aumentar o valor estratégico de disputar a etapa.
+- Um título que permanece: fazer o jogador desejar não só a premiação, mas o título. Ex-campeões, fotos históricas, trajetórias, tentativas de bicampeonato e grandes decisões constroem legado.
+Frase-síntese: "Há campeões de torneios. E há campeões do CPH."
+
+Como aplicar: trate cada vídeo como um capítulo da temporada, com tom de campeonato (peso, conquista, legado), não de anúncio de evento avulso. Não invente nomes de campeões, jogadores, números de etapa, datas, posições no Ranking ou valores que não foram informados: use marcadores como [nome do campeão], [etapa], [posição no Ranking] ou [valor garantido].`;
+function ctxBlock(area){let s="";if(clube.sobre.trim())s+="\n\nInformações do clube (use como referência de fatos e tom de voz):\n"+clube.sobre.trim().slice(0,6000);if(area==="A&B"){s+=clube.cardapio.trim()?"\n\nCardápio de A&B do clube (use só itens desta lista):\n"+clube.cardapio.trim().slice(0,6000):"\n\nO cardápio não foi informado: use marcadores como [nome do prato] e [nome do drink].";}if(area==="CPH")s+="\n\n"+CPH;return s;}
 
 /* ---------- tabs & nav ---------- */
 function setTab(t){$("#tabR").setAttribute("aria-selected",t==="roteiro");$("#tabT").setAttribute("aria-selected",t==="temas");$("#paneRoteiro").hidden=t!=="roteiro";$("#paneTemas").hidden=t!=="temas";}
@@ -462,7 +484,7 @@ document.querySelectorAll("[data-go]").forEach(a=>a.addEventListener("click",()=
 
 /* ---------- wizard ---------- */
 const STEPS=[
- {id:"area",q:"Qual a categoria do vídeo?",hint:"Em Torneio, Cash Game, Home Game e A&B o roteiro sai no padrão da H2: três atos e tabela Tempo | Cena | Fala / Som. Em A&B, também puxa o cardápio do clube.",opts:AREAS},
+ {id:"area",q:"Qual a categoria do vídeo?",hint:"Em todas as categorias o roteiro sai no padrão da H2: três atos e tabela Tempo | Cena | Fala / Som. Em A&B, também puxa o cardápio do clube. Em CPH, segue o território de marca do Campeonato Paulista de Poker.",opts:AREAS},
  {id:"video",q:"Tem uma propaganda de inspiração?",hint:"Opcional. Anexe o vídeo e a IA monta o roteiro da H2 seguindo a estrutura, o ritmo e o estilo dele.",video:true,optional:true},
  {id:"duracao",q:"Tempo de duração do vídeo",opts:["15 segundos","30 segundos","45 segundos","60 segundos","90 segundos","3 minutos"]},
  {id:"assunto",q:"Sobre o que o vídeo aborda?",hint:"Quanto mais específico, melhor o roteiro.",text:true,ph:"Ex.: Divulgação do Main Event de outubro, com garantido de [valor] e satélites durante a semana."},
@@ -522,7 +544,7 @@ Crie um roteiro de vídeo com estes dados:
 
 ${padrao?`${PADRAO}
 
-Monte o roteiro seguindo esse padrão, cobrindo exatamente a duração pedida.${ASSINATURAS[a.area]?` Use a assinatura "${ASSINATURAS[a.area]}".`:" Crie uma assinatura curta para a categoria, no mesmo espírito (trocadilho com o nome da categoria ou do clube)."}${a.area==="A&B"?" Em A&B, a comida e a bebida são as protagonistas: closes de preparo, textura e brinde, com a mesa de poker como cenário.":""} Adapte a linguagem à plataforma.
+Monte o roteiro seguindo esse padrão, cobrindo exatamente a duração pedida.${ASSINATURAS[a.area]?` Use a assinatura "${ASSINATURAS[a.area]}".`:" Crie uma assinatura curta para a categoria, no mesmo espírito (trocadilho com o nome da categoria ou do clube)."}${a.area==="A&B"?" Em A&B, a comida e a bebida são as protagonistas: closes de preparo, textura e brinde, com a mesa de poker como cenário.":""}${a.area==="CPH"?" Em CPH, o protagonista é o campeonato: o cabeçalho é \"CPH — [assinatura]\" (sem o H2 no cabeçalho), a assinatura fala de título, legado ou temporada (ex.: \"O título que vira legado\", \"Há campeões de torneios. E há campeões do CPH.\") e o packshot traz o logo do CPH e o lettering do campeonato. Cenas de campeonato: salão cheio de mesas, mesa final, troféu, placar do Ranking, ex-campeões, decisões de mão com tensão, comemoração do título.":""} Adapte a linguagem à plataforma.
 Responda só com JSON neste formato:
 {"titulo":"título curto do vídeo","assinatura":"trocadilho da categoria","atos":["Preparação","Revelação","Experiência"],"mensagem":"a mensagem principal do vídeo em uma frase","cenas":[{"tempo":"0 a 1s","ato":"Preparação","cena":"descrição cinematográfica da cena","som":"fala entre aspas, som ou música, ou —"}],"lettering":"texto final em caixa alta","cta":"chamada final","legenda":"legenda do post","hashtags":["tag"],"dicas":["dica de gravação"]${refOn?',"referencia":"em 2 ou 3 frases, o que foi aproveitado da propaganda de inspiração (estrutura, ritmo, recursos)"':""}}`:`Divida em cenas com marcação de tempo que somem a duração pedida (a primeira cena é um gancho de até 3 segundos). Adapte a linguagem à plataforma.
 Responda só com JSON neste formato:
@@ -563,7 +585,7 @@ function fmtRoteiro(j,a){
 }
 function fmtRoteiroH2(j,a){
   const L=[],area=String(a.area||"").toUpperCase(),ass=String(j.assinatura||ASSINATURAS[a.area]||"").trim();
-  L.push(`${area} H2${ass?` — "${ass}"`:""}`);
+  L.push(`${area}${a.area==="CPH"?"":" H2"}${ass?` — "${ass}"`:""}`);
   if(Array.isArray(j.atos)&&j.atos.length)L.push("Narrativa em três atos: "+j.atos.map(x=>String(x).toLowerCase()).join(" → ")+".");
   L.push("");
   if(j.mensagem)L.push("MENSAGEM PRINCIPAL\n"+j.mensagem,"");
@@ -647,7 +669,7 @@ async function genTemas(){
   const prompt=`${BASE}${ctxBlock(T.dem)}
 
 Crie ${T.qtd} temas diferentes de vídeo para a demanda "${T.dem}", com tom ${T.tom.toLowerCase()}.${ctx?"\nContexto da demanda: "+ctx:""}
-Cada tema precisa de uma mensagem principal clara: o que esse tema quer dizer para quem assiste. Varie os ângulos (bastidores, desafio, curiosidade, jogador, experiência no clube, etc.).
+Cada tema precisa de uma mensagem principal clara: o que esse tema quer dizer para quem assiste. ${T.dem==="CPH"?"Trate o CPH como campeonato e conte a temporada, não eventos isolados. Varie os ângulos entre os pilares (história e legado, tradição, técnica e estrutura, Ranking e corrida anual, grandes jogadores como personagens, ex-campeões e bicampeonato, Main Event, December Nine, pertencimento paulista e alcance nacional).":"Varie os ângulos (bastidores, desafio, curiosidade, jogador, experiência no clube, etc.)."}
 Responda só com um JSON array neste formato:
 [{"titulo":"nome curto do tema","mensagem":"o que esse tema quer dizer, em 1 ou 2 frases","gancho":"primeira frase ou imagem do vídeo","formato":"formato sugerido e duração","por_que":"por que funciona para esse público"}]`;
   try{
@@ -746,7 +768,7 @@ function openItem(id,mode){
   const m=$("#mcard");$("#modal").hidden=false;
   if(mode==="edit"){
     const ti=el("input",{class:"field",id:"eTitle"});ti.value=i.titulo||"";
-    const ar=el("select",{class:"field",id:"eArea"},AREAS.map(a=>el("option",{value:a},a)));ar.value=i.area||"Torneio";
+    const ar=el("select",{class:"field",id:"eArea"},(i.area&&!AREAS.includes(i.area)?[...AREAS,i.area]:AREAS).map(a=>el("option",{value:a},a)));ar.value=i.area||"Torneio";
     const tp=el("select",{class:"field",id:"eTipo"},el("option",{value:"roteiro"},"Roteiro"),el("option",{value:"tema"},"Tema"));tp.value=i.tipo;
     const ms=el("textarea",{class:"field",id:"eMsg",rows:"2"});ms.value=i.mensagem||"";
     const ct=el("textarea",{class:"field script",id:"eBody"});ct.value=i.conteudo||"";

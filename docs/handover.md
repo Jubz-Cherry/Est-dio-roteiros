@@ -37,7 +37,7 @@
 
 São feitas uma de cada vez, com barra de progresso e um painel lateral "Suas respostas", onde dá para clicar e voltar a qualquer pergunta.
 
-1. **Categoria:** Torneio, Cash Game, Home Game, A&B ou Institucional.
+1. **Categoria:** Torneio, Cash Game, Home Game, A&B ou CPH.
 2. **Propaganda de inspiração:** opcional, com upload de vídeo (ver 2.3).
 3. **Duração:** 15s, 30s, 45s, 60s, 90s ou 3 min.
 4. **Sobre o que o vídeo aborda:** texto livre.
@@ -78,7 +78,7 @@ As perguntas de múltipla escolha também aceitam uma opção escrita à mão.
 ### 2.4 Temas para vídeo
 
 **Como pedir:**
-- **Demanda:** Torneio, Cash Game, Home Game, A&B ou Institucional.
+- **Demanda:** Torneio, Cash Game, Home Game, A&B ou CPH.
 - **Quantidade:** 3, 5 ou 8 temas.
 - **Tom:** emocionante, descontraído, sofisticado ou com humor.
 - **Contexto:** opcional, por exemplo "série de outubro, final dia 26".
