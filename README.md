@@ -53,4 +53,4 @@ Edite `estudio-h2.html` e republique no mesmo Artifact (mesmo link), mantendo as
 
 ## Cadastro de clientes
 
-Formulário de cadastro de clientes da H2 (3 etapas, visual da marca) em `cadastro-clientes/formulario-h2.html`, publicado como protótipo em https://claude.ai/artifact/2JkVkMqUyknFigQ4UKvyy9. A lógica para guardar os dados e disparar o e-mail pelo Salesforce (com ou sem n8n) está em `cadastro-clientes/LOGICA-AUTOMACAO.md`.
+Formulário de cadastro de clientes da H2 (3 etapas, visual da marca) em `cadastro-clientes/formulario-h2.html`, com prévia visual em https://claude.ai/artifact/2JkVkMqUyknFigQ4UKvyy9. Os cadastros vão para uma planilha do Google Sheets pelo `cadastro-clientes/apps-script.gs`, e a lógica do disparo de e-mail pelo Salesforce (com n8n) está em `cadastro-clientes/LOGICA-AUTOMACAO.md`.

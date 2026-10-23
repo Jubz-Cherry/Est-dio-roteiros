@@ -198,22 +198,6 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
 /* aviso de protótipo */
 .note{max-width:760px;margin:18px auto 0;font-size:12.5px;color:var(--ink-3);text-align:center}
 
-/* painel do time */
-.team{max-width:760px;margin:28px auto 0;background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:22px clamp(18px,4vw,32px)}
-.team-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.team h2{margin:0;font:800 16px/1.2 var(--display);font-stretch:112%;text-transform:uppercase}
-.team h2 small{font:600 13px var(--body);color:var(--ink-3);text-transform:none;margin-left:6px}
-.team-actions{display:flex;gap:10px;flex-wrap:wrap}
-.btn.sm{height:38px;padding:0 18px;font-size:12px}
-.tablewrap{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:12px}
-table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
-th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);background:var(--field)}
-td{font-variant-numeric:tabular-nums}
-tr:last-child td{border-bottom:0}
-.status{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(192,92,214,.16);color:var(--orchid)}
-.empty{color:var(--ink-3);font-size:13.5px;margin:14px 0 0}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:10px 18px;border-radius:999px;font-weight:700;font-size:13px;z-index:20}
 
 @media (max-width:640px){
   .grid{grid-template-columns:1fr}
@@ -261,8 +245,9 @@ tr:last-child td{border-bottom:0}
               <span class="err"></span>
             </div>
             <div class="field full">
-              <label for="apelido">Como quer ser chamado na mesa <span class="opt">(opcional)</span></label>
-              <input type="text" id="apelido" name="apelido" autocomplete="nickname" placeholder="Ex.: Ju, Rafa, Tubarão">
+              <label for="nascimento">Data de nascimento <span class="req">*</span></label>
+              <input type="date" id="nascimento" name="nascimento" autocomplete="bday">
+              <span class="err"></span>
             </div>
           </div>
           <div class="token" aria-hidden="true">
@@ -271,16 +256,6 @@ tr:last-child td{border-bottom:0}
           </div>
         </div>
         <div class="grid">
-          <div class="field">
-            <label for="cpf">CPF <span class="opt">(opcional)</span></label>
-            <input type="text" id="cpf" name="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14">
-            <span class="err"></span>
-          </div>
-          <div class="field">
-            <label for="nascimento">Data de nascimento <span class="req">*</span></label>
-            <input type="date" id="nascimento" name="nascimento" autocomplete="bday">
-            <span class="err"></span>
-          </div>
           <div class="field full">
             <span class="legend" id="lg-genero">Gênero <span class="opt">(opcional)</span></span>
             <div class="pills" role="radiogroup" aria-labelledby="lg-genero">
@@ -390,40 +365,21 @@ tr:last-child td{border-bottom:0}
     </div>
   </section>
 
-  <p class="note" id="nota">Protótipo para o time testar o formulário. Os cadastros feitos aqui ficam guardados nesta página e aparecem para quem edita.</p>
-
-  <!-- PAINEL DO TIME (só para quem edita) -->
-  <section class="team" id="painel" hidden aria-labelledby="t-painel">
-    <div class="team-head">
-      <h2 id="t-painel">Cadastros recebidos <small id="contagem"></small></h2>
-      <div class="team-actions">
-        <button type="button" class="btn back sm" id="copiarCsv">Copiar CSV</button>
-        <button type="button" class="btn go sm" id="baixarCsv" hidden>Baixar CSV</button>
-      </div>
-    </div>
-    <p class="empty" id="vazio">Nenhum cadastro ainda. Preencha o formulário acima para ver o primeiro aparecer aqui.</p>
-    <div class="tablewrap" id="tabelaWrap" hidden>
-      <table>
-        <thead><tr><th>Data</th><th>Nome</th><th>E-mail</th><th>Celular</th><th>Cidade/UF</th><th>Interesses</th><th>E-mail H2</th></tr></thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-  </section>
+  <p class="note" id="nota" hidden>Modo de teste: a planilha ainda não está ligada, então os cadastros feitos aqui não são guardados.</p>
 </main>
 
 <script>
-/* Para produção: endereço do webhook (n8n) que recebe o cadastro em JSON.
-   Vazio = não envia para fora. Dentro do Claude o envio externo é bloqueado,
-   então lá o cadastro fica só no banco da página. */
+/* Endereço que recebe o cadastro: o "App da Web" do Google Apps Script ligado à
+   planilha (ver apps-script.gs) ou, mais tarde, o Webhook do n8n.
+   Vazio = modo de teste: mostra a tela de sucesso, mas não guarda nada.
+   Dentro do Claude o envio para outros sites é bloqueado; publique o
+   formulário pelo próprio Apps Script ou em outro endereço público. */
 const WEBHOOK_URL = "";
-const COLECAO = "cadastros";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 const $ = s => document.querySelector(s);
 const form = $("#form");
 let etapa = 1;
-let db = null;
-let cadastros = [];
 
 /* SP primeiro (a maior parte dos clientes), depois os outros em ordem alfabética */
 ["SP", "—", ...UFS.filter(u => u !== "SP")].forEach(u => {
@@ -432,32 +388,25 @@ let cadastros = [];
   else { o.value = u; o.textContent = u; }
   $("#uf").append(o);
 });
+$("#nota").hidden = !!WEBHOOK_URL;
 
 /* ---------- máscaras ---------- */
 const so = v => v.replace(/\D/g, "");
-function mascaraCpf(v){ v = so(v).slice(0,11); return v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2"); }
 function mascaraCel(v){ v = so(v).slice(0,11); if (v.length <= 2) return v.length ? "(" + v : ""; if (v.length <= 6) return `(${v.slice(0,2)}) ${v.slice(2)}`; if (v.length <= 10) return `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`; return `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`; }
 function mascaraCep(v){ v = so(v).slice(0,8); return v.length > 5 ? v.slice(0,5) + "-" + v.slice(5) : v; }
-$("#cpf").addEventListener("input", e => e.target.value = mascaraCpf(e.target.value));
 $("#celular").addEventListener("input", e => e.target.value = mascaraCel(e.target.value));
 $("#cep").addEventListener("input", e => e.target.value = mascaraCep(e.target.value));
 
 /* ---------- ficha com iniciais ---------- */
 function iniciais(){
-  const base = ($("#apelido").value.trim() || $("#nome").value.trim());
-  const partes = base.split(/\s+/).filter(Boolean);
+  const partes = $("#nome").value.trim().split(/\s+/).filter(Boolean);
   if (!partes.length) return "H2";
   const ini = partes.length === 1 ? partes[0].slice(0,2) : partes[0][0] + partes[partes.length-1][0];
   return ini.toUpperCase();
 }
-["#nome","#apelido"].forEach(s => $(s).addEventListener("input", () => { $("#iniciais").textContent = iniciais(); }));
+$("#nome").addEventListener("input", () => { $("#iniciais").textContent = iniciais(); });
 
 /* ---------- validação ---------- */
-function cpfValido(c){
-  c = so(c); if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false;
-  for (let t = 9; t < 11; t++){ let s = 0; for (let i = 0; i < t; i++) s += +c[i] * (t + 1 - i); if (((s * 10) % 11) % 10 !== +c[t]) return false; }
-  return true;
-}
 function idade(iso){
   const n = new Date(iso + "T12:00:00"); if (isNaN(n)) return -1;
   const h = new Date(); let a = h.getFullYear() - n.getFullYear();
@@ -475,7 +424,6 @@ function valida(n){
   if (n === 1){
     const nome = v("nome");
     ok.push(marca("nome", !nome ? "Escreva seu nome completo." : nome.split(/\s+/).length < 2 ? "Escreva nome e sobrenome." : ""));
-    ok.push(marca("cpf", v("cpf") && !cpfValido(v("cpf")) ? "Esse CPF não confere. Revise os números ou deixe em branco." : ""));
     const i = v("nascimento") ? idade(v("nascimento")) : null;
     ok.push(marca("nascimento", i === null ? "Informe sua data de nascimento." : i < 0 || i > 110 ? "Revise a data." : i < 18 ? "O cadastro é só para maiores de 18 anos." : ""));
   }
@@ -506,8 +454,6 @@ function dados(){
   const fd = new FormData(form);
   return {
     nome: (fd.get("nome") || "").trim(),
-    apelido: (fd.get("apelido") || "").trim(),
-    cpf: so(fd.get("cpf") || ""),
     nascimento: fd.get("nascimento") || "",
     genero: fd.get("genero") || "",
     email: (fd.get("email") || "").trim().toLowerCase(),
@@ -516,7 +462,7 @@ function dados(){
     cidade: (fd.get("cidade") || "").trim(),
     uf: fd.get("uf") || "",
     origem: fd.get("origem") || "",
-    interesses: fd.getAll("interesses"),
+    interesses: fd.getAll("interesses").join("; "),
     nivel: fd.get("nivel") || "",
     optinEmail: $("#optin").checked,
     aceiteTermos: $("#termos").checked
@@ -526,8 +472,8 @@ function brData(iso){ if (!iso) return "—"; const [a,m,d] = iso.split("-"); re
 function resumo(){
   const d = dados();
   const linhas = [
-    ["Nome", d.nome], ["CPF", d.cpf ? mascaraCpf(d.cpf) : ""], ["Nascimento", brData(d.nascimento)],
-    ["E-mail", d.email], ["Celular", mascaraCel(d.celular.slice(3))], ["Cidade", d.cidade + (d.uf ? " / " + d.uf : "")]
+    ["Nome", d.nome], ["Nascimento", brData(d.nascimento)], ["E-mail", d.email],
+    ["Celular", mascaraCel(d.celular.slice(3))], ["Cidade", d.cidade + (d.uf ? " / " + d.uf : "")], ["CEP", mascaraCep(d.cep)]
   ];
   const dl = $("#review"); dl.replaceChildren();
   linhas.forEach(([k,v]) => { const w = document.createElement("div"); const dt = document.createElement("dt"); dt.textContent = k; const dd = document.createElement("dd"); dd.textContent = v || "—"; w.append(dt, dd); dl.append(w); });
@@ -557,27 +503,20 @@ form.addEventListener("submit", async e => {
 async function enviar(){
   const btn = $("#avancar");
   btn.disabled = true; btn.textContent = "Enviando…";
-  const registro = {
-    ...dados(),
-    createdAt: new Date().toISOString(),
-    fonte: "formulario-cadastro-h2",
-    status: "novo",          // novo -> enviado_sfmc -> email_enviado
-    emailBoasVindas: false
-  };
-  let salvou = false;
+  const registro = { ...dados(), createdAt: new Date().toISOString(), status: "novo" };
   try {
-    if (db){ await db.collection(COLECAO).add(registro); salvou = true; }
     if (WEBHOOK_URL){
-      const r = await fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(registro) });
-      if (!r.ok) throw new Error("webhook " + r.status);
-      salvou = true;
+      if (WEBHOOK_URL.includes("script.google.com")){
+        /* Apps Script não devolve resposta legível para outro site: envia como texto e segue */
+        await fetch(WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(registro) });
+      } else {
+        const r = await fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(registro) });
+        if (!r.ok) throw new Error("webhook " + r.status);
+      }
     }
-    if (!salvou) throw new Error("sem destino");
     sucesso(registro);
   } catch (err) {
-    $("#formerr").textContent = !db && !WEBHOOK_URL
-      ? "Este formulário ainda não está ligado a nenhum destino, então o cadastro não foi guardado."
-      : "Não deu para enviar agora. Confira sua conexão e tente de novo em alguns segundos.";
+    $("#formerr").textContent = "Não deu para enviar agora. Confira sua conexão e tente de novo em alguns segundos.";
   } finally {
     btn.disabled = false; btn.textContent = "Concluir cadastro";
   }
@@ -586,7 +525,7 @@ function sucesso(r){
   form.hidden = true; $("#steps").hidden = true; $(".lede").hidden = true; $("#titulo").hidden = true;
   $("#sucesso").hidden = false;
   $("#iniciais2").textContent = iniciais();
-  $("#nomeOk").textContent = r.apelido || r.nome.split(" ")[0];
+  $("#nomeOk").textContent = r.nome.split(" ")[0];
   $("#emailOk").textContent = r.email;
 }
 $("#novo").addEventListener("click", () => {
@@ -595,58 +534,4 @@ $("#novo").addEventListener("click", () => {
 });
 $("#jaCliente").addEventListener("click", e => { e.preventDefault(); $("#formerr").textContent = "Para atualizar, é só preencher de novo com o mesmo e-mail: o cadastro mais recente vale."; });
 $("#linkPolitica").addEventListener("click", e => { e.preventDefault(); $("#err-consent").textContent = "O link da Política de Privacidade entra aqui quando o jurídico enviar."; });
-
-/* ---------- painel do time ---------- */
-const COLS = ["createdAt","nome","apelido","cpf","nascimento","genero","email","celular","cep","cidade","uf","origem","interesses","nivel","optinEmail","aceiteTermos","status"];
-function csv(){
-  const esc = v => { v = Array.isArray(v) ? v.join("; ") : v ?? ""; v = String(v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; };
-  return [COLS.join(","), ...cadastros.map(c => COLS.map(k => esc(c[k])).join(","))].join("\n");
-}
-function toast(msg){ const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.append(t); setTimeout(() => t.remove(), 2200); }
-function desenhaPainel(){
-  $("#contagem").textContent = cadastros.length ? `${cadastros.length} no total` : "";
-  $("#vazio").hidden = cadastros.length > 0;
-  $("#tabelaWrap").hidden = cadastros.length === 0;
-  const tb = $("#tbody"); tb.replaceChildren();
-  cadastros.forEach(c => {
-    const tr = document.createElement("tr");
-    const dt = new Date(c.createdAt);
-    const cel = [
-      isNaN(dt) ? "—" : dt.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
-      c.nome, c.email, mascaraCel(String(c.celular || "").replace(/^\+55/, "")), `${c.cidade || ""}/${c.uf || ""}`, (c.interesses || []).join(", ")
-    ];
-    cel.forEach(v => { const td = document.createElement("td"); td.textContent = v || "—"; tr.append(td); });
-    const td = document.createElement("td"); const s = document.createElement("span"); s.className = "status";
-    s.textContent = c.emailBoasVindas ? "enviado" : "na fila"; td.append(s); tr.append(td);
-    tb.append(tr);
-  });
-}
-$("#copiarCsv").addEventListener("click", async () => {
-  const texto = csv();
-  try { await navigator.clipboard.writeText(texto); toast("CSV copiado"); }
-  catch { const ta = document.createElement("textarea"); ta.value = texto; document.body.append(ta); ta.select(); toast("Selecionado: use Ctrl+C"); setTimeout(() => ta.remove(), 4000); }
-});
-
-(async function liga(){
-  const claude = window.claude;
-  if (!claude?.use){ $("#nota").textContent = WEBHOOK_URL ? "" : "Formulário sem destino configurado (WEBHOOK_URL vazio)."; return; }
-  db = await claude.use("db");
-  const user = await claude.use("user");
-  if (!db){ $("#nota").textContent = "Neste acesso o cadastro não pode ser guardado. Abra a página logado na conta da H2 para testar."; return; }
-  if (user?.canEdit?.()){
-    $("#painel").hidden = false;
-    db.collection(COLECAO).orderBy("createdAt", "desc").limit(500).onSnapshot(
-      snap => { cadastros = snap.docs.map(d => ({ id: d.id, ...d.data() })); desenhaPainel(); },
-      () => { $("#vazio").textContent = "Não deu para carregar os cadastros agora. Recarregue a página."; }
-    );
-    const downloads = await claude.use("downloads");
-    if (downloads){
-      $("#baixarCsv").hidden = false;
-      $("#baixarCsv").addEventListener("click", async () => {
-        try { await downloads.save({ filename: "cadastros-h2.csv", data: new Blob(["﻿" + csv()], { type: "text/csv" }) }); }
-        catch (e) { if (e?.code !== "declined") toast("Não deu para baixar. Use Copiar CSV."); }
-      });
-    }
-  }
-})();
 </script>
