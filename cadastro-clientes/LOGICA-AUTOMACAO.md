@@ -7,47 +7,64 @@
 
 | Arquivo | Para quê |
 |---|---|
-| `formulario-h2.html` | O formulário (visual H2, 3 etapas, validação) |
-| `apps-script.gs` | Código que liga o formulário à planilha do Google Sheets |
+| `formulario-h2.html` | O formulário (visual H2, 3 etapas, validação). É a fonte: mudanças são feitas aqui |
+| `fluxo-n8n.json` | Fluxo pronto para importar no n8n: mostra o formulário e grava os cadastros na planilha |
+| `gerar-fluxo-n8n.py` | Gera o `fluxo-n8n.json` de novo depois de mudar o formulário (`python3 gerar-fluxo-n8n.py`) |
+| `apps-script.gs` | Alternativa sem n8n: liga o formulário à planilha pelo Google Apps Script |
 | `LOGICA-AUTOMACAO.md` | Este documento |
 
 ## 1. Visão geral
 
 ```
-Cliente preenche o formulário
+Cliente abre o link do n8n  →  vê o formulário H2
+        │  clica em "Concluir cadastro"
+        ▼
+n8n recebe o cadastro
         │
         ▼
-Google Sheets (aba "Cadastros")       ← guarda os dados, 1 linha por e-mail
-        │  linha nova
-        ▼
-n8n                                   ← (depois) percebe a linha nova
+Google Sheets (aba "Cadastros")       ← 1 linha por e-mail (repetido atualiza, não duplica)
         │
         ▼
-Salesforce Marketing Cloud            ← envia o e-mail pronto para aquela pessoa
+Salesforce Marketing Cloud            ← (próximo passo) envia o e-mail pronto para aquela pessoa
         │
         ▼
-n8n marca na planilha: "email_enviado"
+n8n marca na planilha: emailEnviadoEm
 ```
 
 O formulário só precisa do **e-mail** e do **consentimento** para o disparo funcionar. O resto serve para personalizar e segmentar.
 
-## 2. Ligar o formulário à planilha (dá para fazer já, sem n8n)
+## 2. Colocar o formulário no n8n
 
-1. Criar uma planilha no Google Sheets.
-2. Extensões > Apps Script. Apagar o que tiver e colar o conteúdo de `apps-script.gs`.
-3. Implantar > Nova implantação > tipo **App da Web**. Executar como **Eu**, acesso **Qualquer pessoa**. Autorizar.
-4. Copiar a URL que termina em `/exec`.
-5. No `formulario-h2.html`, colar essa URL em `const WEBHOOK_URL = "";`.
-6. Colocar o formulário num endereço público. A forma mais simples é o próprio Apps Script servir a página (ver item 2.1). Também pode ir para uma CloudPage ou para o site da H2.
+O próprio n8n mostra o formulário (não precisa de site nem de Apps Script). O fluxo tem duas partes:
 
-O que o script faz:
-- Cria a aba "Cadastros" com o cabeçalho, se não existir.
-- Grava uma linha por cadastro.
-- Se o e-mail já existe, **atualiza** a linha em vez de duplicar, e mantém o `status`. Assim ninguém recebe o e-mail de boas-vindas duas vezes.
+| Nó | O que faz |
+|---|---|
+| **Abrir formulário** (Webhook GET `/webhook/cadastro-h2`) | É o link que vai para os clientes |
+| **Mostrar formulário** (Respond to Webhook) | Devolve a página HTML do formulário |
+| **Receber cadastro** (Webhook POST `/webhook/cadastro-h2-enviar`) | O formulário manda os dados para cá ao concluir |
+| **Limpar dados** (Code) | Separa os campos e deixa o e-mail em minúsculo |
+| **Google Sheets** (Append or Update, chave `email`) | Grava a linha, ou atualiza se o e-mail já existir |
 
-### 2.1 Publicar o formulário pelo próprio Apps Script (opcional)
+Passo a passo:
 
-No mesmo projeto do Apps Script: Arquivo > Novo > HTML, nome `formulario`, colar o conteúdo de `formulario-h2.html` e acrescentar ao código:
+1. Criar a planilha no Google Sheets com uma aba **Cadastros** e, na linha 1, as colunas: `createdAt | nome | nascimento | genero | email | celular | cep | cidade | uf | origem | interesses | nivel | optinEmail | aceiteTermos | status | emailEnviadoEm`
+2. No n8n: criar um fluxo novo > menu **⋯** > **Import from File** > escolher `fluxo-n8n.json`.
+3. Abrir o nó **Google Sheets**: escolher (ou criar) a credencial do Google e colar o link da planilha.
+4. Salvar e ligar o fluxo (**Active**).
+5. Abrir o nó **Abrir formulário** e copiar a **Production URL**. Esse é o link do formulário para os clientes.
+6. Testar com o seu e-mail e conferir a linha nova na planilha.
+
+Observações:
+- Use a **Production URL** (`/webhook/...`). A Test URL (`/webhook-test/...`) só funciona com o fluxo aberto em modo de teste, e o formulário envia para o endereço de produção.
+- Mudou alguma coisa no formulário? Edite `formulario-h2.html`, rode `python3 gerar-fluxo-n8n.py` e importe de novo (ou cole o HTML novo no campo **Response Body** do nó **Mostrar formulário**, trocando `const WEBHOOK_URL = "";` por `const WEBHOOK_URL = "/webhook/cadastro-h2-enviar";`).
+- Se a pessoa se cadastrar de novo com o mesmo e-mail, a linha é atualizada e as colunas `status` e `emailEnviadoEm` continuam como estavam.
+
+### 2.1 Alternativa sem n8n: Google Apps Script
+
+Se precisar colocar no ar antes de ter acesso ao n8n:
+
+1. Na planilha: Extensões > Apps Script. Colar o conteúdo de `apps-script.gs`.
+2. Arquivo > Novo > HTML, nome `formulario`, colar o conteúdo de `formulario-h2.html` e acrescentar ao código:
 
 ```js
 function doGet() {
@@ -57,7 +74,9 @@ function doGet() {
 }
 ```
 
-Depois de uma nova implantação, a mesma URL `/exec` abre o formulário e também recebe os envios. Esse é o link que vai para os clientes.
+3. Implantar > Nova implantação > **App da Web**. Executar como **Eu**, acesso **Qualquer pessoa**.
+4. Colar a URL que termina em `/exec` em `const WEBHOOK_URL = "";` no HTML `formulario` e implantar de novo (Gerenciar implantações > Editar > Nova versão).
+5. A URL `/exec` é o link do formulário.
 
 ## 3. Colunas da planilha
 
@@ -76,22 +95,22 @@ Depois de uma nova implantação, a mesma URL `/exec` abre o formulário e tamb�
 | `nivel` | Jogo por diversão | não |
 | `optinEmail` | TRUE | sim (LGPD) |
 | `aceiteTermos` | TRUE | sim |
-| `status` | `novo` → `email_enviado` (ou `erro`) | automático |
+| `status` | `novo` → `email_enviado` (ou `erro`) | preenchido pelo fluxo |
 | `emailEnviadoEm` | data do envio | preenchido pelo n8n |
 
-## 4. O fluxo no n8n (quando houver acesso)
+## 4. Próximo passo no n8n: enviar o e-mail pelo Salesforce
 
-**Ideia principal:** não existe uma lista que o n8n percorre e filtra. Cada linha nova na planilha é uma pessoa, e o n8n roda uma vez para cada uma. O "e-mail por e-mail" acontece sozinho.
+**Ideia principal:** não existe uma lista que o n8n percorre e filtra. Cada cadastro enviado faz o fluxo rodar uma vez, só com aquela pessoa. O "e-mail por e-mail" acontece sozinho.
 
 O modelo de e-mail fica no Salesforce. O n8n só diz "manda o e-mail de boas-vindas para fulana@email.com, o nome dela é Fulana", e o Salesforce encaixa os dados no modelo.
 
 | # | Nó do n8n | O que faz |
 |---|---|---|
-| 1 | **Google Sheets Trigger** (Row Added) | Olha a aba "Cadastros" de tempos em tempos e pega as linhas novas. |
-| 2 | **IF** | Segue só se `optinEmail = TRUE` e `status = novo`. |
+| 1 | **Google Sheets** (o que já existe) | Grava ou atualiza a linha da pessoa. Ligar os nós abaixo logo depois dele. |
+| 2 | **Google Sheets: Get Row(s)** + **IF** | Busca a linha pelo `email` (para ver o `emailEnviadoEm` que já estava lá) e segue só se `optinEmail` é verdadeiro e `emailEnviadoEm` está vazio. Quem já recebeu não recebe de novo. |
 | 3 | **HTTP Request: token** | `POST https://<subdominio>.auth.marketingcloudapis.com/v2/token` com `grant_type=client_credentials`, `client_id`, `client_secret`. Devolve o `access_token`. |
 | 4 | **HTTP Request: enviar** | Manda o e-mail pronto para a pessoa (opções abaixo). |
-| 5 | **Google Sheets: Update Row** | Procura a linha pelo `email` e grava `status = email_enviado` e `emailEnviadoEm`. Se o passo 4 falhar, grava `status = erro`. |
+| 5 | **Google Sheets: Update Row** | Procura a linha pelo `email` e grava `status = email_enviado` e a data em `emailEnviadoEm`. Se o passo 4 falhar, grava `status = erro`. |
 
 ### Passo 4, opção 1: e-mail transacional (um e-mail só, na hora)
 
@@ -130,14 +149,14 @@ Dá para colocar um segundo e-mail dias depois dentro da Journey, sem mexer no n
 - Um **Installed Package** com componente "API Integration" (Server-to-Server), com permissão de envio de e-mail (Email: Send) e, para a opção 2, de Journeys. Ele gera o `client_id`, o `client_secret` e o subdomínio.
 - Essas credenciais ficam só no n8n, nunca no formulário nem na planilha.
 
-## 5. Enquanto não há n8n
+## 5. Enquanto o envio pelo Salesforce não está no n8n
 
 Com a planilha já recebendo os cadastros:
 
-1. Filtrar a planilha por `optinEmail = TRUE` e `status = novo`.
+1. Filtrar a planilha por `optinEmail = TRUE` e `emailEnviadoEm` vazio.
 2. Exportar como CSV e importar numa Data Extension do Marketing Cloud (`email` como Subscriber Key).
 3. Enviar o e-mail pronto para essa Data Extension pelo Email Studio.
-4. Marcar na planilha `status = email_enviado` nessas linhas.
+4. Preencher `emailEnviadoEm` com a data nessas linhas.
 
 ## 6. Sobre o e-mail de boas-vindas
 
@@ -147,7 +166,7 @@ Com a planilha já recebendo os cadastros:
 
 ## 7. Pendências
 
-1. Criar a planilha e instalar o `apps-script.gs`.
+1. Criar a planilha e importar o `fluxo-n8n.json` no n8n.
 2. Link da Política de Privacidade (hoje mostra um aviso no lugar).
 3. Montar o e-mail de boas-vindas e a Send Definition ou Journey no Marketing Cloud.
 4. Installed Package do Salesforce para o n8n.
