@@ -50,3 +50,7 @@ Edite `estudio-h2.html` e republique no mesmo Artifact (mesmo link), mantendo as
 - **v3:** padrão de roteiro da H2 (três atos, tabela Tempo | Cena | Fala / Som e packshot) em Torneio, Cash Game, Home Game e A&B, e botão "Copiar tabela".
 - **v4:** a propaganda de inspiração funciona também onde a IA não recebe imagens. O vídeo continua podendo ser anexado, a descrição da propaganda entra no lugar dos quadros e, se a IA recusar os quadros na hora de gerar, o roteiro é gerado uma vez sem eles.
 - **v5:** análise automática da propaganda, feita no navegador sem IA: cortes, duração dos planos, formato, cores, movimento da câmera e volume do áudio. A análise vai para a IA em toda geração com referência, e a descrição das cenas fica opcional.
+
+## Cadastro de clientes
+
+Formulário de cadastro de clientes da H2 (3 etapas, visual da marca) em `cadastro-clientes/formulario-h2.html`, publicado como protótipo em https://claude.ai/artifact/2JkVkMqUyknFigQ4UKvyy9. A lógica para guardar os dados e disparar o e-mail pelo Salesforce (com ou sem n8n) está em `cadastro-clientes/LOGICA-AUTOMACAO.md`.

@@ -1,0 +1,645 @@
+<title>Cadastro H2 Club</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Red+Hat+Text:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: faixa roxa em cima e preto embaixo (como a referência), fichas de poker no lugar dos círculos, cartão escuro central com 3 etapas. Marca H2 só no escuro, por decisão. */
+:root{
+  color-scheme:dark;
+  --ground:#0A070C;         /* preto da metade de baixo */
+  --band:#2A0B33;           /* faixa roxa de cima */
+  --sheet:#141017;          /* cartão do formulário */
+  --field:#1E1823;          /* campos */
+  --field-hover:#251D2B;
+  --line:#33283A;
+  --ink:#F4F0F6;
+  --ink-2:#BDB3C4;
+  --ink-3:#8A7F92;
+  --plum:#77158E;           /* roxo H2: filete, bloco, borda */
+  --plum-deep:#4C0D5A;
+  --orchid:#C05CD6;         /* roxo H2 em texto de destaque */
+  --mint:#24CFA4;           /* verde H2: só botão */
+  --mint-ink:#06251C;
+  --danger:#FF7A85;
+  --display:"Archivo","Arial Black",Impact,sans-serif;
+  --body:"Red Hat Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r-field:12px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--body);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.stage{
+  position:relative;isolation:isolate;
+  padding-block:56px 72px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:linear-gradient(to bottom,var(--band) 0,var(--band) 46%,var(--ground) 46%);
+  min-height:100vh;overflow:hidden;
+}
+/* fichas de poker decorativas */
+.chip{
+  position:absolute;z-index:-1;border-radius:50%;pointer-events:none;
+  background:
+    radial-gradient(circle,var(--c) 0 46%,transparent 46.5%),
+    radial-gradient(circle,transparent 0 58%,var(--c) 58.5% 60%,transparent 60.5%),
+    repeating-conic-gradient(var(--c) 0 15deg,#F4F0F6 15deg 30deg);
+  -webkit-mask:radial-gradient(circle,#000 70%,transparent 70.5%);
+          mask:radial-gradient(circle,#000 70%,transparent 70.5%);
+  opacity:.9;
+}
+.chip::after{
+  content:"H2";position:absolute;inset:0;display:grid;place-items:center;
+  font:900 calc(var(--s)*.17)/1 var(--display);font-stretch:125%;color:#F4F0F6;opacity:.85;
+}
+.chip.a{--c:var(--plum);--s:240px;width:var(--s);height:var(--s);top:-70px;left:calc(50% - 120px);transform:rotate(8deg)}
+.chip.b{--c:var(--plum-deep);--s:150px;width:var(--s);height:var(--s);top:38%;left:-60px;transform:rotate(-14deg)}
+.chip.c{--c:var(--plum);--s:130px;width:var(--s);height:var(--s);top:40%;right:-30px;transform:rotate(20deg)}
+.chip.d{--c:var(--plum-deep);--s:220px;width:var(--s);height:var(--s);bottom:40px;left:4%;transform:rotate(-4deg);opacity:.55}
+.chip.e{--c:var(--plum);--s:96px;width:var(--s);height:var(--s);bottom:24px;right:6%;transform:rotate(30deg);opacity:.7}
+
+.card{
+  position:relative;max-width:760px;margin:0 auto;
+  background:var(--sheet);border:1px solid var(--line);border-radius:22px;
+  box-shadow:0 30px 80px -30px rgba(0,0,0,.8),0 0 0 1px rgba(119,21,142,.25);
+  padding:28px clamp(18px,5vw,56px) 36px;
+}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--ink-3)}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink-2);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+.brand b{font:900 20px/1 var(--display);font-stretch:125%;color:var(--ink);letter-spacing:0}
+.topline a{color:var(--orchid);font-weight:700;text-decoration:none}
+.topline a:hover{text-decoration:underline}
+h1{
+  margin:22px 0 4px;text-align:center;text-wrap:balance;
+  font:900 clamp(26px,5vw,38px)/1.02 var(--display);font-stretch:125%;text-transform:uppercase;letter-spacing:-.01em;
+}
+h1 em{font-style:normal;color:var(--orchid)}
+.lede{margin:0 auto;text-align:center;color:var(--ink-2);max-width:46ch}
+
+/* etapas */
+.steps{list-style:none;margin:26px auto 30px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);max-width:520px;position:relative}
+.steps li{display:grid;justify-items:center;gap:6px;font-size:12px;color:var(--ink-3);font-weight:600;position:relative;text-align:center}
+.steps li::before{
+  content:"";position:absolute;top:13px;right:50%;width:100%;height:2px;background:var(--line);z-index:0;
+}
+.steps li:first-child::before{display:none}
+.steps li.done::before,.steps li.on::before{background:var(--plum)}
+.dot{
+  position:relative;z-index:1;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+  background:var(--field);border:2px solid var(--line);color:var(--ink-3);font:800 12px/1 var(--display);
+}
+.steps li.on{color:var(--ink)}
+.steps li.on .dot{background:var(--plum);border-color:var(--orchid);color:#fff;box-shadow:0 0 0 5px rgba(192,92,214,.18)}
+.steps li.done .dot{background:var(--plum-deep);border-color:var(--plum);color:var(--orchid)}
+
+/* seções */
+.pane{display:grid;gap:22px}
+.pane-head{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.pane-head h2{margin:0;font:800 17px/1.2 var(--display);font-stretch:112%;text-transform:uppercase;letter-spacing:.02em}
+.pane-head p{margin:4px 0 0;color:var(--ink-3);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px}
+.full{grid-column:1/-1}
+.field{display:grid;gap:7px;min-width:0}
+.field>label,.legend{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.req{color:var(--orchid)}
+.opt{color:var(--ink-3);font-weight:500}
+input[type=text],input[type=email],input[type=tel],input[type=date],select{
+  width:100%;height:46px;padding:0 16px;border-radius:var(--r-field);
+  background:var(--field);border:1.5px solid transparent;color:var(--ink);
+  font:500 14.5px/1 var(--body);transition:border-color .15s,background .15s;
+  appearance:none;-webkit-appearance:none;
+}
+select{
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 50%,calc(100% - 15px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:40px;
+}
+input::placeholder{color:var(--ink-3)}
+input:hover,select:hover{background-color:var(--field-hover)}
+input:focus,select:focus{outline:none;border-color:var(--orchid);background-color:var(--field-hover)}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
+.field.bad input,.field.bad select{border-color:var(--danger)}
+.err{min-height:0;font-size:12px;color:var(--danger);font-weight:600}
+.err:empty{display:none}
+.hint{font-size:12px;color:var(--ink-3)}
+
+/* ficha com iniciais (no lugar do "Add photo") */
+.who{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.token{display:grid;justify-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--ink-2)}
+.token .chipface{
+  --c:var(--plum);width:92px;height:92px;border-radius:50%;position:relative;display:grid;place-items:center;
+  background:
+    radial-gradient(circle,var(--c) 0 52%,transparent 52.5%),
+    repeating-conic-gradient(var(--c) 0 15deg,#F4F0F6 15deg 30deg);
+  box-shadow:0 10px 30px -8px rgba(192,92,214,.55);
+}
+.token .chipface span{font:900 24px/1 var(--display);font-stretch:125%;color:#fff;letter-spacing:.02em}
+
+/* opções em pílula */
+.pills{display:flex;flex-wrap:wrap;gap:10px}
+.pill{position:relative}
+.pill input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.pill span{
+  display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:999px;
+  background:var(--field);border:1.5px solid var(--line);color:var(--ink-2);font-weight:600;font-size:13.5px;cursor:pointer;
+  transition:border-color .15s,background .15s,color .15s;
+}
+.pill span::before{
+  content:"";width:16px;height:16px;border-radius:50%;border:1.5px solid var(--ink-3);flex:none;
+}
+.pill input[type=checkbox]+span::before{border-radius:5px}
+.pill input:checked+span{background:rgba(119,21,142,.28);border-color:var(--orchid);color:var(--ink)}
+.pill input:checked+span::before{background:var(--orchid);border-color:var(--orchid);box-shadow:inset 0 0 0 3px var(--sheet)}
+.pill input:focus-visible+span{outline:2px solid var(--orchid);outline-offset:2px}
+
+/* consentimento */
+.consent{display:grid;gap:12px;padding:18px;border-radius:14px;background:var(--field);border:1px solid var(--line)}
+.check{display:grid;grid-template-columns:20px 1fr;gap:12px;align-items:start;font-size:13.5px;color:var(--ink-2);cursor:pointer}
+.check input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--plum);cursor:pointer}
+.check a{color:var(--orchid)}
+
+/* resumo da etapa 3 */
+.review{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.review div{padding:12px 16px;border-bottom:1px solid var(--line);min-width:0}
+.review dt{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:700}
+.review dd{margin:2px 0 0;font-weight:600;overflow-wrap:anywhere}
+.edit{background:none;border:0;color:var(--orchid);font:700 13px var(--body);cursor:pointer;padding:6px 0}
+.edit:hover{text-decoration:underline}
+
+/* botões */
+.actions{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:30px;flex-wrap:wrap}
+.btn{
+  height:48px;padding:0 30px;border-radius:999px;border:0;cursor:pointer;
+  font:800 14px/1 var(--display);font-stretch:112%;text-transform:uppercase;letter-spacing:.04em;
+}
+.btn.go{background:var(--mint);color:var(--mint-ink);box-shadow:0 12px 30px -10px rgba(36,207,164,.6)}
+.btn.go:hover{filter:brightness(1.07)}
+.btn.go:disabled{opacity:.6;cursor:progress}
+.btn.back{background:transparent;color:var(--ink-2);border:1.5px solid var(--line)}
+.btn.back:hover{border-color:var(--ink-3);color:var(--ink)}
+.btn:focus-visible,.edit:focus-visible{outline:2px solid var(--orchid);outline-offset:3px}
+.formerr{text-align:center;color:var(--danger);font-weight:600;font-size:13px;margin:16px 0 0}
+.formerr:empty{display:none}
+
+/* sucesso */
+.done-view{text-align:center;display:grid;justify-items:center;gap:14px;padding:12px 0 6px}
+.done-view .chipface{width:120px;height:120px}
+.done-view .chipface span{font-size:30px}
+.done-view h2{margin:6px 0 0;font:900 clamp(24px,4.5vw,32px)/1.05 var(--display);font-stretch:125%;text-transform:uppercase;text-wrap:balance}
+.done-view h2 em{font-style:normal;color:var(--orchid)}
+.done-view p{margin:0;color:var(--ink-2);max-width:48ch}
+.tag{font:800 13px/1 var(--display);font-stretch:125%;color:var(--orchid);letter-spacing:.04em}
+
+/* aviso de protótipo */
+.note{max-width:760px;margin:18px auto 0;font-size:12.5px;color:var(--ink-3);text-align:center}
+
+/* painel do time */
+.team{max-width:760px;margin:28px auto 0;background:var(--sheet);border:1px solid var(--line);border-radius:18px;padding:22px clamp(18px,4vw,32px)}
+.team-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.team h2{margin:0;font:800 16px/1.2 var(--display);font-stretch:112%;text-transform:uppercase}
+.team h2 small{font:600 13px var(--body);color:var(--ink-3);text-transform:none;margin-left:6px}
+.team-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn.sm{height:38px;padding:0 18px;font-size:12px}
+.tablewrap{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);background:var(--field)}
+td{font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.status{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(192,92,214,.16);color:var(--orchid)}
+.empty{color:var(--ink-3);font-size:13.5px;margin:14px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:10px 18px;border-radius:999px;font-weight:700;font-size:13px;z-index:20}
+
+@media (max-width:640px){
+  .grid{grid-template-columns:1fr}
+  .who{grid-template-columns:1fr;justify-items:stretch}
+  .token{order:-1}
+  .review{grid-template-columns:1fr 1fr}
+  .chip.a{--s:170px;top:-60px;left:calc(50% - 85px)}
+  .chip.b,.chip.c,.chip.e{display:none}
+  .pane-head{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<main class="stage">
+  <div class="chip a" aria-hidden="true"></div>
+  <div class="chip b" aria-hidden="true"></div>
+  <div class="chip c" aria-hidden="true"></div>
+  <div class="chip d" aria-hidden="true"></div>
+  <div class="chip e" aria-hidden="true"></div>
+
+  <section class="card" aria-labelledby="titulo">
+    <div class="topline">
+      <span class="brand"><b>H2</b> Club</span>
+      <span>Já é cliente? <a href="#" id="jaCliente">Atualize seus dados</a></span>
+    </div>
+
+    <h1 id="titulo">Puxe sua <em>cadeira</em></h1>
+    <p class="lede">Faça seu cadastro na H2 e receba por e-mail a agenda de torneios, as mesas de cash game e as novidades do clube.</p>
+
+    <ol class="steps" id="steps">
+      <li class="on"><span class="dot">1</span>Dados pessoais</li>
+      <li><span class="dot">2</span>Contato</li>
+      <li><span class="dot">3</span>Preferências</li>
+    </ol>
+
+    <form id="form" novalidate>
+      <!-- ETAPA 1 -->
+      <div class="pane" data-step="1">
+        <div class="pane-head"><div><h2>Dados pessoais</h2><p>Campos com <span class="req">*</span> são obrigatórios.</p></div></div>
+        <div class="who">
+          <div class="grid">
+            <div class="field full">
+              <label for="nome">Nome completo <span class="req">*</span></label>
+              <input type="text" id="nome" name="nome" autocomplete="name" placeholder="Como está no seu documento">
+              <span class="err"></span>
+            </div>
+            <div class="field full">
+              <label for="apelido">Como quer ser chamado na mesa <span class="opt">(opcional)</span></label>
+              <input type="text" id="apelido" name="apelido" autocomplete="nickname" placeholder="Ex.: Ju, Rafa, Tubarão">
+            </div>
+          </div>
+          <div class="token" aria-hidden="true">
+            <div class="chipface"><span id="iniciais">H2</span></div>
+            Sua ficha
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="cpf">CPF <span class="req">*</span></label>
+            <input type="text" id="cpf" name="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14">
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="nascimento">Data de nascimento <span class="req">*</span></label>
+            <input type="date" id="nascimento" name="nascimento" autocomplete="bday">
+            <span class="err"></span>
+          </div>
+          <div class="field full">
+            <span class="legend" id="lg-genero">Gênero <span class="opt">(opcional)</span></span>
+            <div class="pills" role="radiogroup" aria-labelledby="lg-genero">
+              <label class="pill"><input type="radio" name="genero" id="g-f" value="Feminino"><span>Feminino</span></label>
+              <label class="pill"><input type="radio" name="genero" id="g-m" value="Masculino"><span>Masculino</span></label>
+              <label class="pill"><input type="radio" name="genero" id="g-o" value="Outro"><span>Outro</span></label>
+              <label class="pill"><input type="radio" name="genero" id="g-n" value="Prefiro não informar"><span>Prefiro não informar</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 2 -->
+      <div class="pane" data-step="2" hidden>
+        <div class="pane-head"><div><h2>Contato</h2><p>É neste e-mail que você vai receber as mensagens da H2.</p></div></div>
+        <div class="grid">
+          <div class="field full">
+            <label for="email">E-mail <span class="req">*</span></label>
+            <input type="email" id="email" name="email" autocomplete="email" placeholder="voce@email.com">
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="celular">Celular / WhatsApp <span class="req">*</span></label>
+            <input type="tel" id="celular" name="celular" autocomplete="tel-national" inputmode="numeric" placeholder="(11) 90000-0000" maxlength="15">
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="cep">CEP <span class="opt">(opcional)</span></label>
+            <input type="text" id="cep" name="cep" autocomplete="postal-code" inputmode="numeric" placeholder="00000-000" maxlength="9">
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="cidade">Cidade <span class="req">*</span></label>
+            <input type="text" id="cidade" name="cidade" autocomplete="address-level2" placeholder="São Paulo">
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="uf">Estado <span class="req">*</span></label>
+            <select id="uf" name="uf" autocomplete="address-level1"><option value="">Selecione</option></select>
+            <span class="err"></span>
+          </div>
+          <div class="field full">
+            <label for="origem">Como conheceu a H2? <span class="opt">(opcional)</span></label>
+            <select id="origem" name="origem">
+              <option value="">Selecione</option>
+              <option>Instagram</option>
+              <option>Indicação de amigo</option>
+              <option>Google</option>
+              <option>Torneio ou evento</option>
+              <option>Já frequento o clube</option>
+              <option>Outro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ETAPA 3 -->
+      <div class="pane" data-step="3" hidden>
+        <div class="pane-head"><div><h2>Preferências</h2><p>Assim a gente manda só o que tem a ver com você.</p></div></div>
+        <div class="field">
+          <span class="legend" id="lg-int">O que te interessa na H2? <span class="req">*</span></span>
+          <div class="pills" role="group" aria-labelledby="lg-int">
+            <label class="pill"><input type="checkbox" name="interesses" id="i-torneio" value="Torneios"><span>Torneios</span></label>
+            <label class="pill"><input type="checkbox" name="interesses" id="i-cash" value="Cash Game"><span>Cash Game</span></label>
+            <label class="pill"><input type="checkbox" name="interesses" id="i-home" value="Home Game"><span>Home Game</span></label>
+            <label class="pill"><input type="checkbox" name="interesses" id="i-ab" value="Gastronomia (A&amp;B)"><span>Gastronomia (A&amp;B)</span></label>
+          </div>
+          <span class="err" id="err-interesses"></span>
+        </div>
+        <div class="field">
+          <span class="legend" id="lg-nivel">Sua relação com o poker <span class="opt">(opcional)</span></span>
+          <div class="pills" role="radiogroup" aria-labelledby="lg-nivel">
+            <label class="pill"><input type="radio" name="nivel" id="n-1" value="Quero aprender"><span>Quero aprender</span></label>
+            <label class="pill"><input type="radio" name="nivel" id="n-2" value="Jogo por diversão"><span>Jogo por diversão</span></label>
+            <label class="pill"><input type="radio" name="nivel" id="n-3" value="Jogo com frequência"><span>Jogo com frequência</span></label>
+            <label class="pill"><input type="radio" name="nivel" id="n-4" value="Jogo profissionalmente"><span>Jogo profissionalmente</span></label>
+          </div>
+        </div>
+
+        <div>
+          <div class="pane-head" style="margin-bottom:12px"><h2 style="font-size:14px">Confira seus dados</h2></div>
+          <dl class="review" id="review"></dl>
+        </div>
+
+        <div class="consent">
+          <label class="check"><input type="checkbox" id="optin" name="optin"><span>Quero receber e-mails da H2 com agenda, promoções e novidades. Posso cancelar quando quiser pelo link no fim de cada e-mail. <span class="req">*</span></span></label>
+          <label class="check"><input type="checkbox" id="termos" name="termos"><span>Tenho 18 anos ou mais e concordo com a <a href="#" id="linkPolitica">Política de Privacidade</a> da H2. <span class="req">*</span></span></label>
+          <span class="err" id="err-consent"></span>
+        </div>
+      </div>
+
+      <p class="formerr" id="formerr" role="alert"></p>
+
+      <div class="actions" id="actions">
+        <button type="button" class="btn back" id="voltar" hidden>Voltar</button>
+        <button type="submit" class="btn go" id="avancar">Continuar</button>
+      </div>
+    </form>
+
+    <!-- SUCESSO -->
+    <div class="done-view" id="sucesso" hidden>
+      <div class="token"><div class="chipface"><span id="iniciais2">H2</span></div></div>
+      <h2>Cadastro feito, <em id="nomeOk">jogador</em>!</h2>
+      <p>Fique de olho em <b id="emailOk"></b>: é por lá que a H2 vai te mandar a agenda e as novidades do clube.</p>
+      <span class="tag">#TOCAEJOGA</span>
+      <button type="button" class="btn back" id="novo">Fazer outro cadastro</button>
+    </div>
+  </section>
+
+  <p class="note" id="nota">Protótipo para o time testar o formulário. Os cadastros feitos aqui ficam guardados nesta página e aparecem para quem edita.</p>
+
+  <!-- PAINEL DO TIME (só para quem edita) -->
+  <section class="team" id="painel" hidden aria-labelledby="t-painel">
+    <div class="team-head">
+      <h2 id="t-painel">Cadastros recebidos <small id="contagem"></small></h2>
+      <div class="team-actions">
+        <button type="button" class="btn back sm" id="copiarCsv">Copiar CSV</button>
+        <button type="button" class="btn go sm" id="baixarCsv" hidden>Baixar CSV</button>
+      </div>
+    </div>
+    <p class="empty" id="vazio">Nenhum cadastro ainda. Preencha o formulário acima para ver o primeiro aparecer aqui.</p>
+    <div class="tablewrap" id="tabelaWrap" hidden>
+      <table>
+        <thead><tr><th>Data</th><th>Nome</th><th>E-mail</th><th>Celular</th><th>Cidade/UF</th><th>Interesses</th><th>E-mail H2</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+/* Para produção: endereço do webhook (n8n) que recebe o cadastro em JSON.
+   Vazio = não envia para fora. Dentro do Claude o envio externo é bloqueado,
+   então lá o cadastro fica só no banco da página. */
+const WEBHOOK_URL = "";
+const COLECAO = "cadastros";
+
+const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+const $ = s => document.querySelector(s);
+const form = $("#form");
+let etapa = 1;
+let db = null;
+let cadastros = [];
+
+UFS.forEach(u => { const o = document.createElement("option"); o.value = u; o.textContent = u; $("#uf").append(o); });
+
+/* ---------- máscaras ---------- */
+const so = v => v.replace(/\D/g, "");
+function mascaraCpf(v){ v = so(v).slice(0,11); return v.replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2"); }
+function mascaraCel(v){ v = so(v).slice(0,11); if (v.length <= 2) return v.length ? "(" + v : ""; if (v.length <= 6) return `(${v.slice(0,2)}) ${v.slice(2)}`; if (v.length <= 10) return `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`; return `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`; }
+function mascaraCep(v){ v = so(v).slice(0,8); return v.length > 5 ? v.slice(0,5) + "-" + v.slice(5) : v; }
+$("#cpf").addEventListener("input", e => e.target.value = mascaraCpf(e.target.value));
+$("#celular").addEventListener("input", e => e.target.value = mascaraCel(e.target.value));
+$("#cep").addEventListener("input", e => e.target.value = mascaraCep(e.target.value));
+
+/* ---------- ficha com iniciais ---------- */
+function iniciais(){
+  const base = ($("#apelido").value.trim() || $("#nome").value.trim());
+  const partes = base.split(/\s+/).filter(Boolean);
+  if (!partes.length) return "H2";
+  const ini = partes.length === 1 ? partes[0].slice(0,2) : partes[0][0] + partes[partes.length-1][0];
+  return ini.toUpperCase();
+}
+["#nome","#apelido"].forEach(s => $(s).addEventListener("input", () => { $("#iniciais").textContent = iniciais(); }));
+
+/* ---------- validação ---------- */
+function cpfValido(c){
+  c = so(c); if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false;
+  for (let t = 9; t < 11; t++){ let s = 0; for (let i = 0; i < t; i++) s += +c[i] * (t + 1 - i); if (((s * 10) % 11) % 10 !== +c[t]) return false; }
+  return true;
+}
+function idade(iso){
+  const n = new Date(iso + "T12:00:00"); if (isNaN(n)) return -1;
+  const h = new Date(); let a = h.getFullYear() - n.getFullYear();
+  const m = h.getMonth() - n.getMonth(); if (m < 0 || (m === 0 && h.getDate() < n.getDate())) a--; return a;
+}
+function marca(id, msg){
+  const f = $("#" + id).closest(".field"); const e = f.querySelector(".err");
+  f.classList.toggle("bad", !!msg); if (e) e.textContent = msg || "";
+  $("#" + id).setAttribute("aria-invalid", msg ? "true" : "false");
+  return !msg;
+}
+function valida(n){
+  const v = id => $("#" + id).value.trim();
+  const ok = [];
+  if (n === 1){
+    const nome = v("nome");
+    ok.push(marca("nome", !nome ? "Escreva seu nome completo." : nome.split(/\s+/).length < 2 ? "Escreva nome e sobrenome." : ""));
+    ok.push(marca("cpf", !v("cpf") ? "Informe seu CPF." : !cpfValido(v("cpf")) ? "Esse CPF não confere. Revise os números." : ""));
+    const i = v("nascimento") ? idade(v("nascimento")) : null;
+    ok.push(marca("nascimento", i === null ? "Informe sua data de nascimento." : i < 0 || i > 110 ? "Revise a data." : i < 18 ? "O cadastro é só para maiores de 18 anos." : ""));
+  }
+  if (n === 2){
+    ok.push(marca("email", !v("email") ? "Informe seu e-mail." : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("email")) ? "Esse e-mail parece incompleto. Confira o @ e o domínio." : ""));
+    const cel = so(v("celular"));
+    ok.push(marca("celular", !cel ? "Informe seu celular." : cel.length !== 11 ? "Use DDD + 9 dígitos, ex.: (11) 91234-5678." : ""));
+    ok.push(marca("cep", v("cep") && so(v("cep")).length !== 8 ? "O CEP tem 8 números." : ""));
+    ok.push(marca("cidade", !v("cidade") ? "Informe sua cidade." : ""));
+    ok.push(marca("uf", !v("uf") ? "Escolha o estado." : ""));
+  }
+  if (n === 3){
+    const temInt = form.querySelectorAll('input[name="interesses"]:checked').length > 0;
+    $("#err-interesses").textContent = temInt ? "" : "Escolha pelo menos um interesse.";
+    ok.push(temInt);
+    const cons = $("#optin").checked && $("#termos").checked;
+    $("#err-consent").textContent = cons ? "" : "Marque as duas caixas para concluir. Sem a autorização não conseguimos te mandar e-mails.";
+    ok.push(cons);
+  }
+  const tudo = ok.every(Boolean);
+  if (!tudo){ const primeiro = form.querySelector(`[data-step="${n}"] [aria-invalid="true"]`); if (primeiro) primeiro.focus(); }
+  return tudo;
+}
+form.addEventListener("input", e => { const f = e.target.closest(".field.bad"); if (f){ f.classList.remove("bad"); const er = f.querySelector(".err"); if (er) er.textContent = ""; } });
+
+/* ---------- etapas ---------- */
+function dados(){
+  const fd = new FormData(form);
+  return {
+    nome: (fd.get("nome") || "").trim(),
+    apelido: (fd.get("apelido") || "").trim(),
+    cpf: so(fd.get("cpf") || ""),
+    nascimento: fd.get("nascimento") || "",
+    genero: fd.get("genero") || "",
+    email: (fd.get("email") || "").trim().toLowerCase(),
+    celular: "+55" + so(fd.get("celular") || ""),
+    cep: so(fd.get("cep") || ""),
+    cidade: (fd.get("cidade") || "").trim(),
+    uf: fd.get("uf") || "",
+    origem: fd.get("origem") || "",
+    interesses: fd.getAll("interesses"),
+    nivel: fd.get("nivel") || "",
+    optinEmail: $("#optin").checked,
+    aceiteTermos: $("#termos").checked
+  };
+}
+function brData(iso){ if (!iso) return "—"; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`; }
+function resumo(){
+  const d = dados();
+  const linhas = [
+    ["Nome", d.nome], ["CPF", mascaraCpf(d.cpf)], ["Nascimento", brData(d.nascimento)],
+    ["E-mail", d.email], ["Celular", mascaraCel(d.celular.slice(3))], ["Cidade", d.cidade + (d.uf ? " / " + d.uf : "")]
+  ];
+  const dl = $("#review"); dl.replaceChildren();
+  linhas.forEach(([k,v]) => { const w = document.createElement("div"); const dt = document.createElement("dt"); dt.textContent = k; const dd = document.createElement("dd"); dd.textContent = v || "—"; w.append(dt, dd); dl.append(w); });
+}
+function vaiPara(n){
+  etapa = n;
+  form.querySelectorAll(".pane").forEach(p => p.hidden = +p.dataset.step !== n);
+  [...$("#steps").children].forEach((li, i) => { li.classList.toggle("on", i + 1 === n); li.classList.toggle("done", i + 1 < n); });
+  $("#voltar").hidden = n === 1;
+  $("#avancar").textContent = n === 3 ? "Concluir cadastro" : "Continuar";
+  $("#formerr").textContent = "";
+  if (n === 3) resumo();
+  const alvo = form.querySelector(`[data-step="${n}"] input, [data-step="${n}"] select`);
+  $(".card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  if (alvo) setTimeout(() => alvo.focus({ preventScroll: true }), 50);
+}
+$("#voltar").addEventListener("click", () => vaiPara(etapa - 1));
+
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!valida(etapa)) return;
+  if (etapa < 3) return vaiPara(etapa + 1);
+  await enviar();
+});
+
+/* ---------- envio ---------- */
+async function enviar(){
+  const btn = $("#avancar");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  const registro = {
+    ...dados(),
+    createdAt: new Date().toISOString(),
+    fonte: "formulario-cadastro-h2",
+    status: "novo",          // novo -> enviado_sfmc -> email_enviado
+    emailBoasVindas: false
+  };
+  let salvou = false;
+  try {
+    if (db){ await db.collection(COLECAO).add(registro); salvou = true; }
+    if (WEBHOOK_URL){
+      const r = await fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(registro) });
+      if (!r.ok) throw new Error("webhook " + r.status);
+      salvou = true;
+    }
+    if (!salvou) throw new Error("sem destino");
+    sucesso(registro);
+  } catch (err) {
+    $("#formerr").textContent = !db && !WEBHOOK_URL
+      ? "Este formulário ainda não está ligado a nenhum destino, então o cadastro não foi guardado."
+      : "Não deu para enviar agora. Confira sua conexão e tente de novo em alguns segundos.";
+  } finally {
+    btn.disabled = false; btn.textContent = "Concluir cadastro";
+  }
+}
+function sucesso(r){
+  form.hidden = true; $("#steps").hidden = true; $(".lede").hidden = true; $("#titulo").hidden = true;
+  $("#sucesso").hidden = false;
+  $("#iniciais2").textContent = iniciais();
+  $("#nomeOk").textContent = r.apelido || r.nome.split(" ")[0];
+  $("#emailOk").textContent = r.email;
+}
+$("#novo").addEventListener("click", () => {
+  form.reset(); form.hidden = false; $("#steps").hidden = false; $(".lede").hidden = false; $("#titulo").hidden = false;
+  $("#sucesso").hidden = true; $("#iniciais").textContent = "H2"; vaiPara(1);
+});
+$("#jaCliente").addEventListener("click", e => { e.preventDefault(); $("#formerr").textContent = "Para atualizar, é só preencher de novo com o mesmo e-mail: o cadastro mais recente vale."; });
+$("#linkPolitica").addEventListener("click", e => { e.preventDefault(); $("#err-consent").textContent = "O link da Política de Privacidade entra aqui quando o jurídico enviar."; });
+
+/* ---------- painel do time ---------- */
+const COLS = ["createdAt","nome","apelido","cpf","nascimento","genero","email","celular","cep","cidade","uf","origem","interesses","nivel","optinEmail","aceiteTermos","status"];
+function csv(){
+  const esc = v => { v = Array.isArray(v) ? v.join("; ") : v ?? ""; v = String(v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; };
+  return [COLS.join(","), ...cadastros.map(c => COLS.map(k => esc(c[k])).join(","))].join("\n");
+}
+function toast(msg){ const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.append(t); setTimeout(() => t.remove(), 2200); }
+function desenhaPainel(){
+  $("#contagem").textContent = cadastros.length ? `${cadastros.length} no total` : "";
+  $("#vazio").hidden = cadastros.length > 0;
+  $("#tabelaWrap").hidden = cadastros.length === 0;
+  const tb = $("#tbody"); tb.replaceChildren();
+  cadastros.forEach(c => {
+    const tr = document.createElement("tr");
+    const dt = new Date(c.createdAt);
+    const cel = [
+      isNaN(dt) ? "—" : dt.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }),
+      c.nome, c.email, mascaraCel(String(c.celular || "").replace(/^\+55/, "")), `${c.cidade || ""}/${c.uf || ""}`, (c.interesses || []).join(", ")
+    ];
+    cel.forEach(v => { const td = document.createElement("td"); td.textContent = v || "—"; tr.append(td); });
+    const td = document.createElement("td"); const s = document.createElement("span"); s.className = "status";
+    s.textContent = c.emailBoasVindas ? "enviado" : "na fila"; td.append(s); tr.append(td);
+    tb.append(tr);
+  });
+}
+$("#copiarCsv").addEventListener("click", async () => {
+  const texto = csv();
+  try { await navigator.clipboard.writeText(texto); toast("CSV copiado"); }
+  catch { const ta = document.createElement("textarea"); ta.value = texto; document.body.append(ta); ta.select(); toast("Selecionado: use Ctrl+C"); setTimeout(() => ta.remove(), 4000); }
+});
+
+(async function liga(){
+  const claude = window.claude;
+  if (!claude?.use){ $("#nota").textContent = WEBHOOK_URL ? "" : "Formulário sem destino configurado (WEBHOOK_URL vazio)."; return; }
+  db = await claude.use("db");
+  const user = await claude.use("user");
+  if (!db){ $("#nota").textContent = "Neste acesso o cadastro não pode ser guardado. Abra a página logado na conta da H2 para testar."; return; }
+  if (user?.canEdit?.()){
+    $("#painel").hidden = false;
+    db.collection(COLECAO).orderBy("createdAt", "desc").limit(500).onSnapshot(
+      snap => { cadastros = snap.docs.map(d => ({ id: d.id, ...d.data() })); desenhaPainel(); },
+      () => { $("#vazio").textContent = "Não deu para carregar os cadastros agora. Recarregue a página."; }
+    );
+    const downloads = await claude.use("downloads");
+    if (downloads){
+      $("#baixarCsv").hidden = false;
+      $("#baixarCsv").addEventListener("click", async () => {
+        try { await downloads.save({ filename: "cadastros-h2.csv", data: new Blob(["﻿" + csv()], { type: "text/csv" }) }); }
+        catch (e) { if (e?.code !== "declined") toast("Não deu para baixar. Use Copiar CSV."); }
+      });
+    }
+  }
+})();
+</script>
