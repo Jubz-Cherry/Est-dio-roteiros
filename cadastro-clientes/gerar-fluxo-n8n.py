@@ -13,7 +13,11 @@ CAMINHO_ENVIO = "cadastro-h2-enviar"   # POST /webhook/cadastro-h2-enviar  -> re
 fonte = (PASTA / "formulario-h2.html").read_text(encoding="utf-8")
 marca = 'const WEBHOOK_URL = "";'
 assert marca in fonte, "não achei a constante WEBHOOK_URL no formulário"
-corpo = fonte.replace(marca, f'const WEBHOOK_URL = "/webhook/{CAMINHO_ENVIO}";')
+# Aberto pelo link de teste (/webhook-test/), envia para o teste; pelo de produção, para a produção
+corpo = fonte.replace(
+    marca,
+    f'const WEBHOOK_URL = (location.pathname.includes("/webhook-test/") ? "/webhook-test/" : "/webhook/") + "{CAMINHO_ENVIO}";',
+)
 html = (
     '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">'
     '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
