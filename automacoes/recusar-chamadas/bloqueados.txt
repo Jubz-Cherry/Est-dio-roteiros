@@ -1,0 +1,3 @@
+# Um número por linha, do jeito que aparece no celular.
+# O que vier depois de # é ignorado. Exemplos:
+# 11 4002-8922   # ligou oferecendo plano
