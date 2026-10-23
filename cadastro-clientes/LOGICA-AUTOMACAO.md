@@ -24,7 +24,7 @@ O nome de cada campo já está pronto para virar coluna na Data Extension do Sal
 | `email` | texto (e-mail, minúsculo) | sim | **Chave do contato** (Subscriber Key / Contact Key) |
 | `nome` | texto | sim | Nome e sobrenome |
 | `apelido` | texto | não | "Como quer ser chamado na mesa", bom para personalizar o e-mail |
-| `cpf` | texto, 11 dígitos | sim | Validado pelos dígitos verificadores |
+| `cpf` | texto, 11 dígitos | não | Se preenchido, é validado pelos dígitos verificadores |
 | `nascimento` | data AAAA-MM-DD | sim | Bloqueia menores de 18 |
 | `genero` | texto | não | |
 | `celular` | texto, +55DDDNÚMERO | sim | Formato pronto para WhatsApp/SMS |
@@ -73,6 +73,65 @@ n8n ─ Webhook (recebe o cadastro)
 - O e-mail continua sendo montado e enviado pelo Salesforce. O n8n só leva os dados até lá.
 - Credenciais do Salesforce (Client ID e Secret de um "Installed Package" com permissão em Data Extensions e Journeys) ficam só no n8n, nunca no formulário.
 
+#### Como pensar o "e-mail por e-mail"
+
+Não existe uma lista que o n8n percorre. **Cada pessoa que clica em "Concluir cadastro" dispara o fluxo uma vez**, só com os dados dela. Então o fluxo sempre trata uma pessoa e um e-mail por vez, na hora em que ela se cadastra.
+
+O modelo pronto do Salesforce não é copiado para o n8n. O n8n só diz ao Salesforce "manda o e-mail X para esta pessoa", e o Salesforce preenche o modelo com os dados dela (`%%nome%%`, `%%apelido%%` etc.).
+
+#### Nós do fluxo no n8n, um por um
+
+| # | Nó | O que faz |
+|---|---|---|
+| 1 | **Webhook** (POST) | Recebe o JSON do formulário. Em "Allowed Origins (CORS)" coloque o domínio onde o formulário está. |
+| 2 | **Respond to Webhook** | Responde `200 OK` na hora, para a pessoa ver "Cadastro feito" sem esperar o resto. |
+| 3 | **IF: tem consentimento?** | `optinEmail` é verdadeiro e o e-mail não está vazio. Se não, para aqui (só guarda, não envia). |
+| 4 | **Google Sheets: procurar e-mail** | Procura o e-mail na planilha de cadastros. Serve de cópia de segurança e evita mandar duas vezes. |
+| 5 | **IF: já recebeu?** | Se o e-mail já existe com `emailBoasVindas = sim`, só atualiza os dados e termina. |
+| 6 | **Google Sheets: adicionar ou atualizar linha** | Grava a pessoa com `status = novo`. |
+| 7 | **HTTP Request: token do Salesforce** | `POST https://<subdominio>.auth.marketingcloudapis.com/v2/token` com `grant_type=client_credentials`, `client_id`, `client_secret`. Devolve o `access_token`. |
+| 8 | **HTTP Request: gravar na Data Extension** | `POST https://<subdominio>.rest.marketingcloudapis.com/hub/v1/dataevents/key:H2_Cadastro_Clientes/rowset` com a pessoa (chave `email`). Upsert: se já existe, atualiza. |
+| 9 | **HTTP Request: enviar o e-mail** | Uma das duas opções abaixo. |
+| 10 | **Google Sheets: marcar enviado** | `status = email_enviado`, `emailBoasVindas = sim`. Se o passo 9 falhar, grava `status = erro` para reenviar depois. |
+
+**Passo 9, opção 1: Journey (bom para régua com vários e-mails)**
+
+`POST https://<subdominio>.rest.marketingcloudapis.com/interaction/v1/events`
+
+```json
+{
+  "ContactKey": "{{email}}",
+  "EventDefinitionKey": "APIEvent-xxxx",
+  "Data": { "email": "{{email}}", "nome": "{{nome}}", "apelido": "{{apelido}}", "interesses": "{{interesses}}" }
+}
+```
+
+A Journey começa com uma entrada do tipo "API Event" e a primeira atividade é o e-mail pronto. Dá para depois colocar um segundo e-mail dias depois, sem mexer no n8n.
+
+**Passo 9, opção 2: e-mail transacional (bom para um e-mail só, na hora)**
+
+1. No Marketing Cloud, criar uma "Transactional Send Definition" apontando para o e-mail pronto (uma vez só).
+2. No n8n: `POST https://<subdominio>.rest.marketingcloudapis.com/messaging/v1/email/messages/{{id-unico}}`
+
+```json
+{
+  "definitionKey": "h2-boas-vindas",
+  "recipient": {
+    "contactKey": "{{email}}",
+    "to": "{{email}}",
+    "attributes": { "nome": "{{nome}}", "apelido": "{{apelido}}" }
+  }
+}
+```
+
+O `{{id-unico}}` pode ser o e-mail mais a data, para não repetir.
+
+#### Mudanças no formulário quando o n8n existir
+
+1. Hospedar o formulário num endereço público (CloudPage, site da H2 ou outro).
+2. Preencher `WEBHOOK_URL` com a URL de produção do Webhook do n8n.
+3. Testar com o próprio e-mail antes de divulgar o link.
+
 ### Enquanto não há automação (hoje)
 
 1. O time preenche cadastros de teste no protótipo.
@@ -91,7 +150,7 @@ n8n ─ Webhook (recebe o cadastro)
 
 - O texto do consentimento está no formulário; confirmar redação.
 - Falta o **link da Política de Privacidade** (hoje mostra um aviso no lugar).
-- CPF está como obrigatório. Se o e-mail for só de relacionamento, pode virar opcional (menos dado sensível guardado e menos desistência).
+- CPF é opcional: o único dado indispensável para o disparo é o e-mail (com o consentimento).
 - Definir por quanto tempo os dados ficam guardados e quem tem acesso.
 
 ## 6. Pendências
@@ -100,5 +159,4 @@ n8n ─ Webhook (recebe o cadastro)
 2. Criar a Data Extension e a Journey no Marketing Cloud.
 3. Montar o e-mail de boas-vindas.
 4. Link da Política de Privacidade.
-5. Confirmar se CPF fica obrigatório.
-6. Logo oficial da H2 em SVG (hoje o topo usa "H2 Club" em texto).
+5. Logo oficial da H2 em SVG (hoje o topo usa "H2 Club" em texto).

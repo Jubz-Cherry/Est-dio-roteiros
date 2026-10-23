@@ -272,7 +272,7 @@ tr:last-child td{border-bottom:0}
         </div>
         <div class="grid">
           <div class="field">
-            <label for="cpf">CPF <span class="req">*</span></label>
+            <label for="cpf">CPF <span class="opt">(opcional)</span></label>
             <input type="text" id="cpf" name="cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14">
             <span class="err"></span>
           </div>
@@ -475,7 +475,7 @@ function valida(n){
   if (n === 1){
     const nome = v("nome");
     ok.push(marca("nome", !nome ? "Escreva seu nome completo." : nome.split(/\s+/).length < 2 ? "Escreva nome e sobrenome." : ""));
-    ok.push(marca("cpf", !v("cpf") ? "Informe seu CPF." : !cpfValido(v("cpf")) ? "Esse CPF não confere. Revise os números." : ""));
+    ok.push(marca("cpf", v("cpf") && !cpfValido(v("cpf")) ? "Esse CPF não confere. Revise os números ou deixe em branco." : ""));
     const i = v("nascimento") ? idade(v("nascimento")) : null;
     ok.push(marca("nascimento", i === null ? "Informe sua data de nascimento." : i < 0 || i > 110 ? "Revise a data." : i < 18 ? "O cadastro é só para maiores de 18 anos." : ""));
   }
@@ -526,7 +526,7 @@ function brData(iso){ if (!iso) return "—"; const [a,m,d] = iso.split("-"); re
 function resumo(){
   const d = dados();
   const linhas = [
-    ["Nome", d.nome], ["CPF", mascaraCpf(d.cpf)], ["Nascimento", brData(d.nascimento)],
+    ["Nome", d.nome], ["CPF", d.cpf ? mascaraCpf(d.cpf) : ""], ["Nascimento", brData(d.nascimento)],
     ["E-mail", d.email], ["Celular", mascaraCel(d.celular.slice(3))], ["Cidade", d.cidade + (d.uf ? " / " + d.uf : "")]
   ];
   const dl = $("#review"); dl.replaceChildren();
