@@ -119,6 +119,7 @@ select{
   background-position:calc(100% - 20px) 50%,calc(100% - 15px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:40px;
 }
 input::placeholder{color:var(--ink-3)}
+select option{background:var(--field);color:var(--ink)}
 input:hover,select:hover{background-color:var(--field-hover)}
 input:focus,select:focus{outline:none;border-color:var(--orchid);background-color:var(--field-hover)}
 input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
@@ -424,7 +425,13 @@ let etapa = 1;
 let db = null;
 let cadastros = [];
 
-UFS.forEach(u => { const o = document.createElement("option"); o.value = u; o.textContent = u; $("#uf").append(o); });
+/* SP primeiro (a maior parte dos clientes), depois os outros em ordem alfabética */
+["SP", "—", ...UFS.filter(u => u !== "SP")].forEach(u => {
+  const o = document.createElement("option");
+  if (u === "—"){ o.disabled = true; o.textContent = "──────────"; }
+  else { o.value = u; o.textContent = u; }
+  $("#uf").append(o);
+});
 
 /* ---------- máscaras ---------- */
 const so = v => v.replace(/\D/g, "");
