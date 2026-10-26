@@ -26,7 +26,10 @@ html = (
 
 LIMPAR = """// Pega o cadastro enviado pelo formulário e deixa só os campos da planilha
 return $input.all().map(item => {
-  const b = item.json.body || {};
+  // O formulário manda tudo num campo "dados" (texto em JSON)
+  const corpo = item.json.body || {};
+  let b = corpo;
+  try { if (typeof corpo.dados === 'string') b = JSON.parse(corpo.dados); else if (typeof corpo === 'string') b = JSON.parse(corpo); } catch (e) { b = {}; }
   return { json: {
     createdAt: b.createdAt || new Date().toISOString(),
     nome: String(b.nome || '').trim(),
@@ -95,7 +98,7 @@ fluxo = {
                 "httpMethod": "POST",
                 "path": CAMINHO_ENVIO,
                 "responseMode": "onReceived",
-                "options": {},
+                "options": {"allowedOrigins": "*"},
             },
             "id": "b6f7d0c2-1a11-4c2e-9a01-000000000004",
             "name": "Receber cadastro",

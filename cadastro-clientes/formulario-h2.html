@@ -506,13 +506,9 @@ async function enviar(){
   const registro = { ...dados(), createdAt: new Date().toISOString(), status: "novo" };
   try {
     if (WEBHOOK_URL){
-      if (WEBHOOK_URL.includes("script.google.com")){
-        /* Apps Script não devolve resposta legível para outro site: envia como texto e segue */
-        await fetch(WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(registro) });
-      } else {
-        const r = await fetch(WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(registro) });
-        if (!r.ok) throw new Error("webhook " + r.status);
-      }
+      /* Envio "simples" (formulário comum, sem pedir resposta): o n8n abre esta página isolada
+         e o navegador bloqueia qualquer outro tipo de envio para fora dela */
+      await fetch(WEBHOOK_URL, { method: "POST", mode: "no-cors", body: new URLSearchParams({ dados: JSON.stringify(registro) }) });
     }
     sucesso(registro);
   } catch (err) {

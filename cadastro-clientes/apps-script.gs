@@ -21,7 +21,7 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const dados = JSON.parse(e.postData.contents);
+    const dados = JSON.parse(e.parameter.dados || e.postData.contents);
     const email = String(dados.email || "").trim().toLowerCase();
     if (!email) return resposta({ ok: false, erro: "sem e-mail" });
 
