@@ -125,13 +125,14 @@ fluxo = {
         },
         {
             "parameters": {
-                "operation": "appendOrUpdate",
+                # "append": cada inscrição vira uma linha nova (sem coluna de comparação para configurar)
+                "operation": "append",
                 "documentId": {"__rl": True, "mode": "url", "value": ""},
                 "sheetName": {"__rl": True, "mode": "name", "value": "Cadastros"},
                 "columns": {
                     "mappingMode": "autoMapInputData",
                     "value": {},
-                    "matchingColumns": ["email"],
+                    "matchingColumns": [],
                 },
                 "options": {},
             },

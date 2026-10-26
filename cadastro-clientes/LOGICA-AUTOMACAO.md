@@ -43,7 +43,7 @@ O próprio n8n mostra o formulário (não precisa de site nem de Apps Script). O
 | **Mostrar formulário** (Respond to Webhook) | Devolve a página HTML do formulário |
 | **Receber cadastro** (Webhook POST `/webhook/cadastro-h2-enviar`) | O formulário manda os dados para cá ao concluir |
 | **Limpar dados** (Code) | Separa os campos e deixa o e-mail em minúsculo |
-| **Google Sheets** (Append or Update, chave `email`) | Grava a linha, ou atualiza se o e-mail já existir |
+| **Google Sheets** (Append Row) | Grava cada inscrição numa linha nova |
 
 Passo a passo:
 
@@ -57,7 +57,7 @@ Passo a passo:
 Observações:
 - Use a **Production URL** (`/webhook/...`). A Test URL (`/webhook-test/...`) só funciona com o fluxo aberto em modo de teste, e o formulário envia para o endereço de produção.
 - Mudou alguma coisa no formulário? Edite `formulario-h2.html`, rode `python3 gerar-fluxo-n8n.py` e importe de novo (ou cole o HTML novo no campo **Response Body** do nó **Mostrar formulário**, trocando `const WEBHOOK_URL = "";` por `const WEBHOOK_URL = "/webhook/cadastro-h2-enviar";`).
-- Se a pessoa se cadastrar de novo com o mesmo e-mail, a linha é atualizada e as colunas `status` e `emailEnviadoEm` continuam como estavam.
+- Cada envio vira uma linha nova. Se o mesmo homegame se inscrever duas vezes, aparecem duas linhas (dá para filtrar pelo `email` na hora da seleção).
 
 ### 2.1 Alternativa sem n8n: Google Apps Script
 
