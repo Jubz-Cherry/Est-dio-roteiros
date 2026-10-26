@@ -35,30 +35,38 @@ return $input.all().map(item => {
     nome: String(b.nome || '').trim(),
     nascimento: b.nascimento || '',
     genero: b.genero || '',
+    homegame: String(b.homegame || '').trim(),
+    instagram: b.instagram || '',
+    representante: String(b.representante || '').trim(),
     email: String(b.email || '').trim().toLowerCase(),
     celular: b.celular || '',
+    endereco: b.endereco || '',
     cep: b.cep || '',
     cidade: b.cidade || '',
     uf: b.uf || '',
     origem: b.origem || '',
-    interesses: b.interesses || '',
-    nivel: b.nivel || '',
+    dias: b.dias || '',
+    frequencia: b.frequencia || '',
+    buyin: b.buyin || '',
+    arrecadacao: b.arrecadacao || '',
+    jogadores: b.jogadores || '',
+    motivo: b.motivo || '',
     optinEmail: b.optinEmail === true,
     aceiteTermos: b.aceiteTermos === true
     // status e emailEnviadoEm ficam de fora: num e-mail repetido, a planilha mantém o que já tinha
   }};
 }).filter(i => i.json.email);"""
 
-NOTA = """## Cadastro H2
+NOTA = """## Fun Festival no seu homegame
 **1.** Abra o nó *Google Sheets*, escolha sua credencial do Google e a planilha.
 **2.** Na planilha, a aba **Cadastros** precisa ter na linha 1:
-createdAt | nome | nascimento | genero | email | celular | cep | cidade | uf | origem | interesses | nivel | optinEmail | aceiteTermos | status | emailEnviadoEm
-**3.** Ative o fluxo (Active). O link para os clientes é a *Production URL* do nó **Abrir formulário**.
+createdAt | nome | nascimento | genero | homegame | instagram | representante | email | celular | endereco | cep | cidade | uf | origem | dias | frequencia | buyin | arrecadacao | jogadores | motivo | optinEmail | aceiteTermos | status | emailEnviadoEm
+**3.** Ative o fluxo (Active). O link do formulário é a *Production URL* do nó **Abrir formulário**.
 
 Próximo passo: depois do Google Sheets, ligar o envio do e-mail pelo Salesforce (ver LOGICA-AUTOMACAO.md)."""
 
 fluxo = {
-    "name": "Cadastro H2: formulário → planilha",
+    "name": "Fun Festival homegame: formulário → planilha",
     "nodes": [
         {
             "parameters": {"content": NOTA, "height": 340, "width": 520},

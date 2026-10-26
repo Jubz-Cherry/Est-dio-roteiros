@@ -1,4 +1,4 @@
-# Cadastro de clientes H2: formulário → planilha → e-mail
+# Fun Festival no seu homegame: formulário → planilha → e-mail
 
 **Responsável:** Julia Nascimento
 **Prévia do formulário:** https://claude.ai/artifact/2JkVkMqUyknFigQ4UKvyy9 (só visual, não guarda nada)
@@ -47,7 +47,7 @@ O próprio n8n mostra o formulário (não precisa de site nem de Apps Script). O
 
 Passo a passo:
 
-1. Criar a planilha no Google Sheets com uma aba **Cadastros** e, na linha 1, as colunas: `createdAt | nome | nascimento | genero | email | celular | cep | cidade | uf | origem | interesses | nivel | optinEmail | aceiteTermos | status | emailEnviadoEm`
+1. Criar a planilha no Google Sheets com uma aba **Cadastros** e, na linha 1, as colunas: `createdAt | nome | nascimento | genero | homegame | instagram | representante | email | celular | endereco | cep | cidade | uf | origem | dias | frequencia | buyin | arrecadacao | jogadores | motivo | optinEmail | aceiteTermos | status | emailEnviadoEm`
 2. No n8n: criar um fluxo novo > menu **⋯** > **Import from File** > escolher `fluxo-n8n.json`.
 3. Abrir o nó **Google Sheets**: escolher (ou criar) a credencial do Google e colar o link da planilha.
 4. Salvar e ligar o fluxo (**Active**).
@@ -78,21 +78,29 @@ function doGet() {
 4. Colar a URL que termina em `/exec` em `const WEBHOOK_URL = "";` no HTML `formulario` e implantar de novo (Gerenciar implantações > Editar > Nova versão).
 5. A URL `/exec` é o link do formulário.
 
-## 3. Colunas da planilha
+## 3. Colunas da planilha (Fun Festival no seu homegame)
 
 | Coluna | Exemplo | Obrigatório |
 |---|---|---|
-| `createdAt` | 2026-10-23T18:40:00.000Z | automático |
-| `nome` | Julia Nascimento | sim |
-| `nascimento` | 1998-04-12 | sim (bloqueia menores de 18) |
+| `createdAt` | 2026-10-26T18:31:03.591Z | automático |
+| `nome` | Julia Nascimento | sim (quem preencheu) |
+| `nascimento` | 1995-03-10 | sim (bloqueia menores de 18) |
 | `genero` | Feminino | não |
-| `email` | julia@email.com | sim, **chave do contato** |
+| `homegame` | Poker de Quinta | sim |
+| `instagram` | @pokerdequinta | não |
+| `representante` | Rafa Lima | sim (quem joga o Main Event) |
+| `email` | rafa@email.com | sim, e-mail do representante e **chave do contato** |
 | `celular` | +5511912345678 | sim |
-| `cep` | 05422000 | não |
+| `endereco` | Rua dos Pinheiros, 100 - Pinheiros | sim |
+| `cep` | 05422000 | sim |
 | `cidade` / `uf` | São Paulo / SP | sim |
 | `origem` | Instagram | não |
-| `interesses` | Torneios; Cash Game | sim |
-| `nivel` | Jogo por diversão | não |
+| `dias` | Quinta; Sábado | sim |
+| `frequencia` | 1x por semana | sim |
+| `buyin` | 100 (em reais) | sim |
+| `arrecadacao` | 1500 (em reais, por noite) | sim |
+| `jogadores` | 9 | sim |
+| `motivo` | Por que o homegame merece o buy-in | sim |
 | `optinEmail` | TRUE | sim (LGPD) |
 | `aceiteTermos` | TRUE | sim |
 | `status` | `novo` → `email_enviado` (ou `erro`) | preenchido pelo fluxo |
