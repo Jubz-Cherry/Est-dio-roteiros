@@ -152,5 +152,7 @@ fluxo = {
     "pinData": {},
 }
 
+# Só a página, para colar no "Response Body" do nó Mostrar formulário sem reimportar o fluxo
+(PASTA / "formulario-n8n.html").write_text(html, encoding="utf-8")
 (PASTA / "fluxo-n8n.json").write_text(json.dumps(fluxo, ensure_ascii=False, indent=2), encoding="utf-8")
-print("fluxo-n8n.json gerado")
+print("fluxo-n8n.json e formulario-n8n.html gerados")

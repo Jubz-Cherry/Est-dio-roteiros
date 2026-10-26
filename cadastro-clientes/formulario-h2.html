@@ -446,7 +446,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
 
         <div class="consent">
           <label class="check"><input type="checkbox" id="optin" name="optin"><span>Quero receber e-mails da H2 com agenda, promoções e novidades. Posso cancelar quando quiser pelo link no fim de cada e-mail. <span class="req">*</span></span></label>
-          <label class="check"><input type="checkbox" id="termos" name="termos"><span>Tenho 18 anos ou mais e concordo com a <a href="#" id="linkPolitica">Política de Privacidade</a> da H2. <span class="req">*</span></span></label>
+          <label class="check"><input type="checkbox" id="termos" name="termos"><span>Tenho 18 anos ou mais e concordo com a <a href="https://www.h2club.com.br/privacidade/" id="linkPolitica" target="_blank" rel="noopener">Política de Privacidade</a> da H2. <span class="req">*</span></span></label>
           <span class="err" id="err-consent"></span>
         </div>
       </div>
@@ -662,5 +662,4 @@ $("#novo").addEventListener("click", () => {
   form.reset(); form.hidden = false; $("#steps").hidden = false; $("#lede").hidden = false; $("#titulo").hidden = false;
   $("#sucesso").hidden = true; $("#iniciais").textContent = "H2"; $("#motivoConta").textContent = "0 / 1000"; vaiPara(1);
 });
-$("#linkPolitica").addEventListener("click", e => { e.preventDefault(); $("#err-consent").textContent = "O link da Política de Privacidade entra aqui quando o jurídico enviar."; });
 </script>
