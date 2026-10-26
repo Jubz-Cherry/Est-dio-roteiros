@@ -9,6 +9,7 @@ from pathlib import Path
 PASTA = Path(__file__).parent
 CAMINHO_FORM = "cadastro-h2"           # GET  /webhook/cadastro-h2         -> mostra o formulário
 CAMINHO_ENVIO = "cadastro-h2-enviar"   # POST /webhook/cadastro-h2-enviar  -> recebe o cadastro
+N8N_HOST = "https://h2club.app.n8n.cloud"
 
 fonte = (PASTA / "formulario-h2.html").read_text(encoding="utf-8")
 marca = 'const WEBHOOK_URL = "";'
@@ -152,7 +153,32 @@ fluxo = {
     "pinData": {},
 }
 
+# LP separada (hospedada fora do n8n), apontando direto para o n8n.
+# A de TESTE usa a Test URL (precisa do "Listen for test event"); a outra, a Production URL (fluxo publicado).
+def lp(url):
+    pagina = fonte.replace(marca, f'const WEBHOOK_URL = "{url}";')
+    return ('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
+            "</head><body>" + pagina + "</body></html>")
+(PASTA / "lp-fun-festival.html").write_text(lp(f"{N8N_HOST}/webhook/{CAMINHO_ENVIO}"), encoding="utf-8")
+(PASTA / "lp-fun-festival-TESTE.html").write_text(lp(f"{N8N_HOST}/webhook-test/{CAMINHO_ENVIO}"), encoding="utf-8")
+
 # Só a página, para colar no "Response Body" do nó Mostrar formulário sem reimportar o fluxo
 (PASTA / "formulario-n8n.html").write_text(html, encoding="utf-8")
 (PASTA / "fluxo-n8n.json").write_text(json.dumps(fluxo, ensure_ascii=False, indent=2), encoding="utf-8")
-print("fluxo-n8n.json e formulario-n8n.html gerados")
+# Fluxo só de recebimento (a LP fica fora do n8n): é este que vai ser publicado
+NOTA_PUBLICAR = """## Fun Festival: recebe as inscrições da LP
+**1.** Abra o nó *Google Sheets*: sua credencial do Google, o link da planilha e a aba **Cadastros** (From list).
+**2.** Clique em **Save** e depois em **Publish** (ou ligue **Active**).
+**3.** A LP `lp-fun-festival.html` já envia para a Production URL do nó **Receber cadastro**. Não abra essa URL no navegador: ela só recebe dados."""
+nomes = {"Receber cadastro", "Limpar dados", "Google Sheets"}
+publicar = {
+    "name": "Fun Festival homegame: LP → planilha",
+    "nodes": [{**fluxo["nodes"][0], "parameters": {"content": NOTA_PUBLICAR, "height": 260, "width": 560}, "position": [-80, -100]}]
+             + [n for n in fluxo["nodes"] if n["name"] in nomes],
+    "connections": {k: v for k, v in fluxo["connections"].items() if k in nomes},
+    "settings": {"executionOrder": "v1"},
+    "pinData": {},
+}
+(PASTA / "fluxo-n8n-publicar.json").write_text(json.dumps(publicar, ensure_ascii=False, indent=2), encoding="utf-8")
+print("fluxo-n8n.json, fluxo-n8n-publicar.json, formulario-n8n.html e as LPs gerados")
