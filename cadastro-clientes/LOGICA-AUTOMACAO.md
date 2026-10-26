@@ -87,7 +87,7 @@ function doGet() {
 | `nascimento` | 1995-03-10 | sim (bloqueia menores de 18) |
 | `genero` | Feminino | não |
 | `homegame` | Poker de Quinta | sim |
-| `instagram` | @pokerdequinta | não |
+| `instagram` | @pokerdequinta | sim |
 | `representante` | Rafa Lima | sim (quem joga o Main Event) |
 | `email` | rafa@email.com | sim, e-mail do representante e **chave do contato** |
 | `celular` | +5511912345678 | sim |

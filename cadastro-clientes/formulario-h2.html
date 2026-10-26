@@ -288,7 +288,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
             <span class="err"></span>
           </div>
           <div class="field">
-            <label for="instagram">@ do seu homegame <span class="opt">(opcional)</span></label>
+            <label for="instagram">@ do seu homegame <span class="req">*</span></label>
             <input type="text" id="instagram" name="instagram" autocapitalize="none" spellcheck="false" placeholder="@pokerdequinta">
             <span class="err"></span>
           </div>
@@ -505,7 +505,7 @@ function valida(n){
     ok.push(marca("nascimento", i === null ? "Informe sua data de nascimento." : i < 0 || i > 110 ? "Revise a data." : i < 18 ? "A inscrição é só para maiores de 18 anos." : ""));
     ok.push(marca("homegame", !v("homegame") ? "Diga o nome do seu homegame." : ""));
     const ig = arroba(v("instagram"));
-    ok.push(marca("instagram", ig && !/^@[A-Za-z0-9._]{1,30}$/.test(ig) ? "Use só letras, números, ponto e _, ex.: @pokerdequinta." : ""));
+    ok.push(marca("instagram", !ig ? "Informe o @ do seu homegame." : !/^@[A-Za-z0-9._]{1,30}$/.test(ig) ? "Use só letras, números, ponto e _, ex.: @pokerdequinta." : ""));
     ok.push(marca("representante", !v("representante") ? "Diga quem vai representar a mesa." : ""));
   }
   if (n === 2){
