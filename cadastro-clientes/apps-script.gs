@@ -13,7 +13,7 @@
 const ABA = "Cadastros";
 const COLUNAS = [
   "createdAt", "nome", "nascimento", "genero", "homegame", "instagram", "representante", "email", "celular", "endereco", "cep", "cidade", "uf", "origem",
-  "dias", "frequencia", "buyin", "arrecadacao", "jogadores", "motivo", "optinEmail", "aceiteTermos", "status", "emailEnviadoEm"
+  "dias", "frequencia", "buyin", "arrecadacao", "jogadores", "motivo", "optinEmail", "aceiteTermos", "status", "emailEnviadoEm", "definicao"
 ];
 
 function doPost(e) {

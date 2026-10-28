@@ -52,6 +52,7 @@ return $input.all().map(item => {
     arrecadacao: b.arrecadacao || '',
     jogadores: b.jogadores || '',
     motivo: b.motivo || '',
+    definicao: b.definicao || '',
     optinEmail: b.optinEmail === true,
     aceiteTermos: b.aceiteTermos === true
     // status e emailEnviadoEm ficam de fora: num e-mail repetido, a planilha mantém o que já tinha
@@ -61,7 +62,7 @@ return $input.all().map(item => {
 NOTA = """## Fun Festival no seu homegame
 **1.** Abra o nó *Google Sheets*, escolha sua credencial do Google e a planilha.
 **2.** Na planilha, a aba **Cadastros** precisa ter na linha 1:
-createdAt | nome | nascimento | genero | homegame | instagram | representante | email | celular | endereco | cep | cidade | uf | origem | dias | frequencia | buyin | arrecadacao | jogadores | motivo | optinEmail | aceiteTermos | status | emailEnviadoEm
+createdAt | nome | nascimento | genero | homegame | instagram | representante | email | celular | endereco | cep | cidade | uf | origem | dias | frequencia | buyin | arrecadacao | jogadores | motivo | optinEmail | aceiteTermos | status | emailEnviadoEm | definicao
 **3.** Ative o fluxo (Active). O link do formulário é a *Production URL* do nó **Abrir formulário**.
 
 Próximo passo: depois do Google Sheets, ligar o envio do e-mail pelo Salesforce (ver LOGICA-AUTOMACAO.md)."""

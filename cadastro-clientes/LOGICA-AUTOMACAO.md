@@ -47,7 +47,7 @@ O próprio n8n mostra o formulário (não precisa de site nem de Apps Script). O
 
 Passo a passo:
 
-1. Criar a planilha no Google Sheets com uma aba **Cadastros** e, na linha 1, as colunas: `createdAt | nome | nascimento | genero | homegame | instagram | representante | email | celular | endereco | cep | cidade | uf | origem | dias | frequencia | buyin | arrecadacao | jogadores | motivo | optinEmail | aceiteTermos | status | emailEnviadoEm`
+1. Criar a planilha no Google Sheets com uma aba **Cadastros** e, na linha 1, as colunas: `createdAt | nome | nascimento | genero | homegame | instagram | representante | email | celular | endereco | cep | cidade | uf | origem | dias | frequencia | buyin | arrecadacao | jogadores | motivo | optinEmail | aceiteTermos | status | emailEnviadoEm | definicao`
 2. No n8n: criar um fluxo novo > menu **⋯** > **Import from File** > escolher `fluxo-n8n.json`.
 3. Abrir o nó **Google Sheets**: escolher (ou criar) a credencial do Google e colar o link da planilha.
 4. Salvar e ligar o fluxo (**Active**).
@@ -88,7 +88,7 @@ function doGet() {
 | `genero` | Feminino | não |
 | `homegame` | Poker de Quinta | sim |
 | `instagram` | @pokerdequinta | sim |
-| `representante` | Rafa Lima | sim (quem joga o Main Event) |
+| `representante` | Rafa | sim (como a pessoa prefere ser chamada) |
 | `email` | rafa@email.com | sim, e-mail do representante e **chave do contato** |
 | `celular` | +5511912345678 | sim |
 | `endereco` | Rua dos Pinheiros, 100 - Pinheiros | sim |
@@ -105,6 +105,7 @@ function doGet() {
 | `aceiteTermos` | TRUE | sim |
 | `status` | `novo` → `email_enviado` (ou `erro`) | preenchido pelo fluxo |
 | `emailEnviadoEm` | data do envio | preenchido pelo n8n |
+| `definicao` | Torneio entre a gente na semana anterior | sim (como o grupo define quem ganha o buy-in) |
 
 ## 4. Próximo passo no n8n: enviar o e-mail pelo Salesforce
 

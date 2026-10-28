@@ -143,7 +143,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
 .hint{font-size:12px;color:var(--ink-3)}
 
 /* ficha com iniciais (no lugar do "Add photo") */
-.who{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.who{display:grid;gap:24px}
 .token{display:grid;justify-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--ink-2)}
 .token .chipface{
   --c:var(--plum);width:92px;height:92px;border-radius:50%;position:relative;display:grid;place-items:center;
@@ -276,8 +276,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
     <div class="lede" id="lede">
       <p class="lede-lead">Seu homegame no Main Event do Fun Festival!</p>
       <p>Vamos selecionar <b>20 homegames</b> para ganhar <b>1 buy‑in (R$&nbsp;450)</b> do Main Event. 🎉</p>
-      <p>Cada grupo selecionado ganha uma vaga e escolhe quem vai representar a mesa. O buy‑in vale apenas para o Dia 1, e o jogador pode escolher qual Dia 1 prefere jogar.</p>
-      <p>Para participar: conte no formulário o nome do grupo, a cidade, quantas pessoas jogam, com que frequência e por que vocês merecem estar no Fun Festival!</p>
+      <p>Cada grupo selecionado ganha uma vaga e escolhe quem vai representar seu home game. O buy‑in vale apenas para o Dia 1, e o jogador pode escolher qual Dia 1 prefere jogar.</p>
     </div>
 
     <ol class="steps" id="steps">
@@ -303,10 +302,6 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
               <span class="err"></span>
             </div>
           </div>
-          <div class="token" aria-hidden="true">
-            <div class="chipface"><span id="iniciais">H2</span></div>
-            Sua ficha
-          </div>
         </div>
         <div class="grid">
           <div class="field full">
@@ -329,9 +324,8 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
             <span class="err"></span>
           </div>
           <div class="field full">
-            <label for="representante">Nome do representante <span class="req">*</span></label>
-            <input type="text" id="representante" name="representante" placeholder="Quem vai jogar o Main Event pela mesa">
-            <span class="hint">Pode ser você ou outra pessoa do grupo.</span>
+            <label for="representante">Como você prefere ser chamado? <span class="req">*</span></label>
+            <input type="text" id="representante" name="representante" placeholder="Ex.: Ju, Rafa, Tubarão">
             <span class="err"></span>
           </div>
         </div>
@@ -432,6 +426,12 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
           </div>
         </div>
 
+        <div class="field">
+          <label for="definicao">Como vai ser definido o ganhador do buy-in? <span class="req">*</span></label>
+          <textarea id="definicao" name="definicao" rows="3" maxlength="500" placeholder="Ex.: torneio entre a gente, quem estiver liderando o ranking do ano, sorteio…"></textarea>
+          <span class="err"></span>
+        </div>
+
         <div class="field big">
           <label for="motivo">Por que o seu homegame tem que ganhar o buy-in do Main Event do Fun Festival? <span class="req">*</span></label>
           <textarea id="motivo" name="motivo" rows="5" maxlength="1000" placeholder="Conte a história da mesa, as rivalidades, quem é o tubarão do grupo…"></textarea>
@@ -512,7 +512,6 @@ function iniciais(texto){
   const ini = partes.length === 1 ? partes[0].slice(0,2) : partes[0][0] + partes[partes.length-1][0];
   return ini.toUpperCase();
 }
-$("#nome").addEventListener("input", () => { $("#iniciais").textContent = iniciais(); });
 
 /* ---------- validação ---------- */
 function idade(iso){
@@ -542,7 +541,7 @@ function valida(n){
     ok.push(marca("homegame", !v("homegame") ? "Diga o nome do seu homegame." : ""));
     const ig = arroba(v("instagram"));
     ok.push(marca("instagram", !ig ? "Informe o @ do seu homegame." : !/^@[A-Za-z0-9._]{1,30}$/.test(ig) ? "Use só letras, números, ponto e _, ex.: @pokerdequinta." : ""));
-    ok.push(marca("representante", !v("representante") ? "Diga quem vai representar a mesa." : ""));
+    ok.push(marca("representante", !v("representante") ? "Diga como você prefere ser chamado." : ""));
   }
   if (n === 2){
     ok.push(marca("email", !v("email") ? "Informe o e-mail do representante." : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("email")) ? "Esse e-mail parece incompleto. Confira o @ e o domínio." : ""));
@@ -560,6 +559,7 @@ function valida(n){
     ok.push(marca("arrecadacao", !so(v("arrecadacao")) ? "Informe a arrecadação estimada." : ""));
     const j = Number(so(v("jogadores")));
     ok.push(marca("jogadores", !j ? "Informe quantas pessoas jogam." : j < 2 ? "Um homegame tem pelo menos 2 jogadores." : ""));
+    ok.push(marca("definicao", !v("definicao") ? "Conte como o grupo vai escolher quem joga." : ""));
     ok.push(marca("motivo", v("motivo").length < 20 ? "Conte um pouco mais: por que vocês merecem a vaga?" : ""));
     const cons = $("#optin").checked && $("#termos").checked;
     $("#err-consent").textContent = cons ? "" : "Marque as duas caixas para concluir. Sem a autorização não conseguimos falar com vocês por e-mail.";
@@ -598,6 +598,7 @@ function dados(){
     buyin: Number(so(t("buyin"))) || "",
     arrecadacao: Number(so(t("arrecadacao"))) || "",
     jogadores: Number(so(t("jogadores"))) || "",
+    definicao: t("definicao"),
     motivo: t("motivo"),
     optinEmail: $("#optin").checked,
     aceiteTermos: $("#termos").checked
@@ -606,7 +607,7 @@ function dados(){
 function resumo(){
   const d = dados();
   const linhas = [
-    ["Homegame", d.homegame + (d.instagram ? " · " + d.instagram : "")], ["Representante", d.representante], ["E-mail", d.email],
+    ["Homegame", d.homegame + (d.instagram ? " · " + d.instagram : "")], ["Prefere ser chamado", d.representante], ["E-mail", d.email],
     ["Cidade", d.cidade + (d.uf ? " / " + d.uf : "")], ["Celular", mascaraCel(d.celular.slice(3))], ["Inscrito por", d.nome]
   ];
   const dl = $("#review"); dl.replaceChildren();
@@ -660,6 +661,6 @@ function sucesso(r){
 }
 $("#novo").addEventListener("click", () => {
   form.reset(); form.hidden = false; $("#steps").hidden = false; $("#lede").hidden = false; $("#titulo").hidden = false;
-  $("#sucesso").hidden = true; $("#iniciais").textContent = "H2"; $("#motivoConta").textContent = "0 / 1000"; vaiPara(1);
+  $("#sucesso").hidden = true; $("#motivoConta").textContent = "0 / 1000"; vaiPara(1);
 });
 </script>
