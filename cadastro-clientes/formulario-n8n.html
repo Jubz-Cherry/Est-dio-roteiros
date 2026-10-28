@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>Fun Festival Homegame</title>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>Fun Festival Home Game</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,9 +109,9 @@ h1 em{font-style:normal;color:var(--orchid)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px}
 .full{grid-column:1/-1}
 .field{display:grid;gap:7px;min-width:0;align-content:start}
-.field>label,.legend{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.field>label,.legend{font:800 14px/1.3 var(--display);font-stretch:112%;color:var(--ink);text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
 .req{color:var(--orchid)}
-.opt{color:var(--ink-3);font-weight:500}
+.opt{color:var(--ink-3);font:500 12.5px var(--body);text-transform:none;letter-spacing:0}
 textarea{
   width:100%;min-height:130px;padding:14px 16px;border-radius:var(--r-field);resize:vertical;
   background:var(--field);border:1.5px solid transparent;color:var(--ink);font:500 14.5px/1.5 var(--body);
@@ -120,8 +120,8 @@ textarea:hover{background-color:var(--field-hover)}
 textarea:focus{outline:none;border-color:var(--orchid);background-color:var(--field-hover)}
 .field.bad textarea{border-color:var(--danger)}
 .grid.three{grid-template-columns:repeat(3,1fr)}
+@media (min-width:641px){.grid.three .field{grid-template-rows:2.7em auto}.grid.three .field>label{align-self:end}}
 .field.sub{padding-left:18px;border-left:2px solid var(--plum)}
-.field.big>label{font:800 15px/1.3 var(--display);font-stretch:112%;color:var(--ink);text-transform:uppercase;letter-spacing:.01em}
 input[type=text],input[type=email],input[type=tel],input[type=date],select{
   width:100%;height:46px;padding:0 16px;border-radius:var(--r-field);
   background:var(--field);border:1.5px solid transparent;color:var(--ink);
@@ -272,17 +272,17 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
 </svg>
     </div>
 
-    <h1 id="titulo">Fun Festival no seu <em>homegame</em></h1>
+    <h1 id="titulo">Fun Festival no seu <em>home game</em></h1>
     <div class="lede" id="lede">
-      <p class="lede-lead">Seu homegame no Main Event do Fun Festival!</p>
-      <p>Vamos selecionar <b>20 homegames</b> para ganhar <b>1 buy‑in (R$&nbsp;450)</b> do Main Event. 🎉</p>
+      <p class="lede-lead">Seu home game no Main Event do Fun Festival!</p>
+      <p>Vamos selecionar <b>20 home games</b> para ganhar <b>1 buy‑in (R$&nbsp;450)</b> do Main Event. 🎉</p>
       <p>Cada grupo selecionado ganha uma vaga e escolhe quem vai representar seu home game. O buy‑in vale apenas para o Dia 1, e o jogador pode escolher qual Dia 1 prefere jogar.</p>
     </div>
 
     <ol class="steps" id="steps">
       <li class="on"><span class="dot">1</span>Dados pessoais</li>
       <li><span class="dot">2</span>Contato</li>
-      <li><span class="dot">3</span>O homegame</li>
+      <li><span class="dot">3</span>O home game</li>
     </ol>
 
     <form id="form" novalidate>
@@ -314,12 +314,12 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
             </div>
           </div>
           <div class="field">
-            <label for="homegame">Nome do homegame <span class="req">*</span></label>
+            <label for="homegame">Nome do home game <span class="req">*</span></label>
             <input type="text" id="homegame" name="homegame" placeholder="Ex.: Poker de Quinta">
             <span class="err"></span>
           </div>
           <div class="field">
-            <label for="instagram">@ do seu homegame <span class="req">*</span></label>
+            <label for="instagram">@ do seu home game <span class="req">*</span></label>
             <input type="text" id="instagram" name="instagram" autocapitalize="none" spellcheck="false" placeholder="@pokerdequinta">
             <span class="err"></span>
           </div>
@@ -333,7 +333,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
 
       <!-- ETAPA 2 -->
       <div class="pane" data-step="2" hidden>
-        <div class="pane-head"><div><h2>Contato</h2><p>É pelo e-mail do representante que a H2 vai falar com o seu homegame.</p></div></div>
+        <div class="pane-head"><div><h2>Contato</h2><p>É pelo e-mail do representante que a H2 vai falar com o seu home game.</p></div></div>
         <div class="grid">
           <div class="field">
             <label for="email">E-mail do representante <span class="req">*</span></label>
@@ -346,7 +346,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
             <span class="err"></span>
           </div>
           <div class="field full">
-            <label for="endereco">Endereço do homegame <span class="req">*</span></label>
+            <label for="endereco">Endereço do home game <span class="req">*</span></label>
             <input type="text" id="endereco" name="endereco" autocomplete="street-address" placeholder="Rua, número e bairro">
             <span class="err"></span>
           </div>
@@ -382,9 +382,9 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
 
       <!-- ETAPA 3 -->
       <div class="pane" data-step="3" hidden>
-        <div class="pane-head"><div><h2>O homegame</h2><p>Conte como é a mesa de vocês.</p></div></div>
+        <div class="pane-head"><div><h2>O home game</h2><p>Conte como é a mesa de vocês.</p></div></div>
         <div class="field">
-          <span class="legend" id="lg-dias">Em que dia acontece o seu homegame? <span class="req">*</span></span>
+          <span class="legend" id="lg-dias">Em que dia acontece o seu home game? <span class="req">*</span></span>
           <div class="pills" role="group" aria-labelledby="lg-dias">
             <label class="pill"><input type="checkbox" name="dias" id="d-seg" value="Segunda"><span>Segunda</span></label>
             <label class="pill"><input type="checkbox" name="dias" id="d-ter" value="Terça"><span>Terça</span></label>
@@ -433,7 +433,7 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
         </div>
 
         <div class="field big">
-          <label for="motivo">Por que o seu homegame tem que ganhar o buy-in do Main Event do Fun Festival? <span class="req">*</span></label>
+          <label for="motivo">Por que o seu home game tem que ganhar o buy-in do Main Event do Fun Festival? <span class="req">*</span></label>
           <textarea id="motivo" name="motivo" rows="5" maxlength="1000" placeholder="Conte a história da mesa, as rivalidades, quem é o tubarão do grupo…"></textarea>
           <span class="hint" id="motivoConta">0 / 1000</span>
           <span class="err"></span>
@@ -462,10 +462,10 @@ input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
     <!-- SUCESSO -->
     <div class="done-view" id="sucesso" hidden>
       <div class="token"><div class="chipface"><span id="iniciais2">H2</span></div></div>
-      <h2><em id="hgOk">Seu homegame</em> está na disputa!</h2>
+      <h2><em id="hgOk">Seu home game</em> está na disputa!</h2>
       <p>Inscrição recebida. Fique de olho em <b id="emailOk"></b>: é por lá que a H2 vai falar com o representante da mesa.</p>
       <span class="tag">#TOCAEJOGA</span>
-      <button type="button" class="btn back" id="novo">Inscrever outro homegame</button>
+      <button type="button" class="btn back" id="novo">Inscrever outro home game</button>
     </div>
   </section>
 
@@ -538,16 +538,16 @@ function valida(n){
     ok.push(marca("nome", !nome ? "Escreva seu nome completo." : nome.split(/\s+/).length < 2 ? "Escreva nome e sobrenome." : ""));
     const i = v("nascimento") ? idade(v("nascimento")) : null;
     ok.push(marca("nascimento", i === null ? "Informe sua data de nascimento." : i < 0 || i > 110 ? "Revise a data." : i < 18 ? "A inscrição é só para maiores de 18 anos." : ""));
-    ok.push(marca("homegame", !v("homegame") ? "Diga o nome do seu homegame." : ""));
+    ok.push(marca("homegame", !v("homegame") ? "Diga o nome do seu home game." : ""));
     const ig = arroba(v("instagram"));
-    ok.push(marca("instagram", !ig ? "Informe o @ do seu homegame." : !/^@[A-Za-z0-9._]{1,30}$/.test(ig) ? "Use só letras, números, ponto e _, ex.: @pokerdequinta." : ""));
+    ok.push(marca("instagram", !ig ? "Informe o @ do seu home game." : !/^@[A-Za-z0-9._]{1,30}$/.test(ig) ? "Use só letras, números, ponto e _, ex.: @pokerdequinta." : ""));
     ok.push(marca("representante", !v("representante") ? "Diga como você prefere ser chamado." : ""));
   }
   if (n === 2){
     ok.push(marca("email", !v("email") ? "Informe o e-mail do representante." : !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v("email")) ? "Esse e-mail parece incompleto. Confira o @ e o domínio." : ""));
     const cel = so(v("celular"));
     ok.push(marca("celular", !cel ? "Informe um celular." : cel.length !== 11 ? "Use DDD + 9 dígitos, ex.: (11) 91234-5678." : ""));
-    ok.push(marca("endereco", !v("endereco") ? "Informe o endereço do homegame." : ""));
+    ok.push(marca("endereco", !v("endereco") ? "Informe o endereço do home game." : ""));
     ok.push(marca("cep", !v("cep") ? "Informe o CEP." : so(v("cep")).length !== 8 ? "O CEP tem 8 números." : ""));
     ok.push(marca("cidade", !v("cidade") ? "Informe a cidade." : ""));
     ok.push(marca("uf", !v("uf") ? "Escolha o estado." : ""));
@@ -558,7 +558,7 @@ function valida(n){
     ok.push(marca("buyin", !so(v("buyin")) ? "Informe o valor do buy-in." : ""));
     ok.push(marca("arrecadacao", !so(v("arrecadacao")) ? "Informe a arrecadação estimada." : ""));
     const j = Number(so(v("jogadores")));
-    ok.push(marca("jogadores", !j ? "Informe quantas pessoas jogam." : j < 2 ? "Um homegame tem pelo menos 2 jogadores." : ""));
+    ok.push(marca("jogadores", !j ? "Informe quantas pessoas jogam." : j < 2 ? "Um home game tem pelo menos 2 jogadores." : ""));
     ok.push(marca("definicao", !v("definicao") ? "Conte como o grupo vai escolher quem joga." : ""));
     ok.push(marca("motivo", v("motivo").length < 20 ? "Conte um pouco mais: por que vocês merecem a vaga?" : ""));
     const cons = $("#optin").checked && $("#termos").checked;
@@ -607,7 +607,7 @@ function dados(){
 function resumo(){
   const d = dados();
   const linhas = [
-    ["Homegame", d.homegame + (d.instagram ? " · " + d.instagram : "")], ["Prefere ser chamado", d.representante], ["E-mail", d.email],
+    ["Home game", d.homegame + (d.instagram ? " · " + d.instagram : "")], ["Prefere ser chamado", d.representante], ["E-mail", d.email],
     ["Cidade", d.cidade + (d.uf ? " / " + d.uf : "")], ["Celular", mascaraCel(d.celular.slice(3))], ["Inscrito por", d.nome]
   ];
   const dl = $("#review"); dl.replaceChildren();
